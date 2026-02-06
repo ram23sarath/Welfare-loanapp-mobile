@@ -7,6 +7,9 @@ import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
 import com.ijreddy.loanapp.data.local.dao.LoanDao
 import com.ijreddy.loanapp.data.local.dao.InstallmentDao
 import com.ijreddy.loanapp.data.repository.LoanRepository
+import com.ijreddy.loanapp.data.repository.CustomerRepository
+import com.ijreddy.loanapp.ui.model.LoanUiModel
+import com.ijreddy.loanapp.ui.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoanListViewModel @Inject constructor(
     private val loanRepository: LoanRepository,
-    private val loanDao: LoanDao,
+    private val customerRepository: CustomerRepository,
     private val installmentDao: InstallmentDao
 ) : ViewModel() {
     
@@ -33,30 +36,40 @@ class LoanListViewModel @Inject constructor(
     private val _sortOrder = MutableStateFlow(SortOrder.NEWEST_FIRST)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
     
-    // Raw loans from database (reactive)
-    private val rawLoans: Flow<List<LoanEntity>> = loanRepository.loans
+    // Raw streams
+    private val rawLoans = loanRepository.loans
+    private val customers = customerRepository.customers
     
-    // Filtered and sorted loans (memoized via combine)
-    val loans: StateFlow<List<LoanEntity>> = combine(
+    // Filtered and sorted loans with customer names
+    val loans: StateFlow<List<LoanUiModel>> = combine(
         rawLoans,
+        customers,
         searchQuery,
         sortOrder
-    ) { loanList, query, order ->
+    ) { loanList, customerList, query, order ->
+        val customerMap = customerList.associateBy { it.id }
+        
         loanList
+            .map { loan ->
+                val customerName = customerMap[loan.customer_id]?.name ?: "Unknown"
+                loan.toUiModel(customerName)
+            }
             .filter { loan ->
-                query.isBlank() || loan.customer_id.contains(query, ignoreCase = true)
+                query.isBlank() || 
+                loan.customerName.contains(query, ignoreCase = true) ||
+                loan.principal.toString().contains(query)
             }
             .let { filtered ->
                 when (order) {
-                    SortOrder.NEWEST_FIRST -> filtered.sortedByDescending { it.created_at }
-                    SortOrder.OLDEST_FIRST -> filtered.sortedBy { it.created_at }
+                    SortOrder.NEWEST_FIRST -> filtered.sortedByDescending { it.createdAt }
+                    SortOrder.OLDEST_FIRST -> filtered.sortedBy { it.createdAt }
                     SortOrder.AMOUNT_HIGH -> filtered.sortedByDescending { it.principal }
                     SortOrder.AMOUNT_LOW -> filtered.sortedBy { it.principal }
                 }
             }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
-    // Pre-computed totals (P1 optimization - avoid inline calculations)
+    // Pre-computed totals
     val totalPrincipal: StateFlow<Double> = rawLoans.map { loanList ->
         loanList.sumOf { it.principal }
     }.stateIn(viewModelScope, SharingStarted.Lazily, 0.0)

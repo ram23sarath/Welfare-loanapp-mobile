@@ -20,26 +20,33 @@ import com.ijreddy.loanapp.R
 fun LoanListScreen(
     onLoanClick: (String) -> Unit,
     onNavigateBack: () -> Unit,
-    // viewModel: LoanViewModel = hiltViewModel()
+    viewModel: LoanListViewModel = hiltViewModel()
 ) {
-    // TODO: Replace with actual data from ViewModel
-    val mockLoans = remember {
-        listOf(
-            MockLoan("1", "John Doe", 50000.0, "2024-01-15"),
-            MockLoan("2", "Jane Smith", 75000.0, "2024-02-20"),
-            MockLoan("3", "Bob Johnson", 25000.0, "2024-03-10"),
-        )
-    }
-    val isLoading = false
+    val loans by viewModel.loans.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val totalPrincipal by viewModel.totalPrincipal.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.loans)) },
+                title = { 
+                    Column {
+                        Text(stringResource(R.string.loans))
+                        Text(
+                            text = "Total: ₹${String.format("%,.0f", totalPrincipal)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    // TODO: meaningful search/sort UI
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -58,6 +65,15 @@ fun LoanListScreen(
             ) {
                 CircularProgressIndicator()
             }
+        } else if (loans.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No loans found")
+            }
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -66,7 +82,10 @@ fun LoanListScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(mockLoans) { loan ->
+                items(
+                    items = loans,
+                    key = { it.id }
+                ) { loan ->
                     LoanCard(
                         loan = loan,
                         onClick = { onLoanClick(loan.id) }
@@ -79,7 +98,7 @@ fun LoanListScreen(
 
 @Composable
 fun LoanCard(
-    loan: MockLoan,
+    loan: com.ijreddy.loanapp.ui.model.LoanUiModel,
     onClick: () -> Unit
 ) {
     Card(
@@ -95,23 +114,43 @@ fun LoanCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = loan.customerName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "₹${String.format("%,.0f", loan.amount)}",
+                    text = loan.customerName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                // Status Badge (Simple text for now)
+                Text(
+                    text = loan.status.replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = when(loan.status) {
+                        "active" -> MaterialTheme.colorScheme.primary
+                        "completed" -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                        "defaulted" -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "₹${String.format("%,.0f", loan.principal)}",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = loan.date,
+                    text = loan.startDate,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -119,11 +158,3 @@ fun LoanCard(
         }
     }
 }
-
-// Temporary mock data class - replace with actual entity
-data class MockLoan(
-    val id: String,
-    val customerName: String,
-    val amount: Double,
-    val date: String
-)

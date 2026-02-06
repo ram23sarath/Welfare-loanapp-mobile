@@ -2,9 +2,10 @@ package com.ijreddy.loanapp.ui.loans
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,28 +13,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.R
+import com.ijreddy.loanapp.ui.sheets.RecordInstallmentBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoanDetailScreen(
     loanId: String,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: LoanDetailViewModel = hiltViewModel()
 ) {
+    val loan by viewModel.loan.collectAsState()
+    val installments by viewModel.installments.collectAsState()
+    
     var showRecordInstallmentSheet by remember { mutableStateOf(false) }
-
-    // TODO: Load actual loan data from ViewModel
-    val loan = remember {
-        MockLoanDetail(
-            id = loanId,
-            customerName = "John Doe",
-            originalAmount = 50000.0,
-            interestAmount = 5000.0,
-            paymentDate = "2024-01-15",
-            totalInstalments = 12,
-            installmentsPaid = 3
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -60,111 +54,130 @@ fun LoanDetailScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Customer Name Header
-            item {
-                Text(
-                    text = loan.customerName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+        val currentLoan = loan
+        
+        if (currentLoan == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-
-            // Loan Summary Card
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Customer Name Header
+                item {
+                    Text(
+                        text = currentLoan.customerName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
                     )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                }
+    
+                // Loan Summary Card
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
-                        LoanDetailRow(
-                            label = stringResource(R.string.original_amount),
-                            value = "₹${String.format("%,.0f", loan.originalAmount)}"
-                        )
-                        LoanDetailRow(
-                            label = stringResource(R.string.interest_amount),
-                            value = "₹${String.format("%,.0f", loan.interestAmount)}"
-                        )
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        LoanDetailRow(
-                            label = "Total",
-                            value = "₹${String.format("%,.0f", loan.originalAmount + loan.interestAmount)}",
-                            isTotal = true
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            LoanDetailRow(
+                                label = stringResource(R.string.original_amount),
+                                value = "₹${String.format("%,.0f", currentLoan.principal)}"
+                            )
+                            LoanDetailRow(
+                                label = stringResource(R.string.interest_amount),
+                                value = "₹${String.format("%,.0f", (currentLoan.principal * currentLoan.interestRate / 100))}" // Approx calc
+                            )
+                            Divider(modifier = Modifier.padding(vertical = 8.dp))
+                            LoanDetailRow(
+                                label = "Total",
+                                value = "₹${String.format("%,.0f", currentLoan.principal + (currentLoan.principal * currentLoan.interestRate / 100))}",
+                                isTotal = true
+                            )
+                        }
                     }
                 }
-            }
-
-            // Progress Card
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "Installments Progress",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LinearProgressIndicator(
-                            progress = { loan.installmentsPaid.toFloat() / loan.totalInstalments },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "${loan.installmentsPaid} of ${loan.totalInstalments} paid",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+    
+                // Progress Card
+                val totalInstallments = currentLoan.tenureMonths
+                val installmentsPaid = installments.size
+                
+                item {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Installments Progress",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { if (totalInstallments > 0) installmentsPaid.toFloat() / totalInstallments else 0f },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "$installmentsPaid of $totalInstallments paid",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
-            }
-
-            // Other Details
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        LoanDetailRow(
-                            label = stringResource(R.string.payment_date),
-                            value = loan.paymentDate
-                        )
-                        LoanDetailRow(
-                            label = stringResource(R.string.total_instalments),
-                            value = loan.totalInstalments.toString()
-                        )
-                    }
+    
+                // Installment History
+                item {
+                    Text(
+                        text = "History",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                
+                items(installments) { installment ->
+                    InstallmentItem(
+                        amount = installment.amount,
+                        date = installment.date,
+                        status = "Paid" // Default for now
+                    )
+                    Divider()
                 }
             }
-
-            // TODO: Add installment history list
         }
     }
-
-    // TODO: Implement Record Installment Bottom Sheet
-    if (showRecordInstallmentSheet) {
-        // RecordInstallmentSheet(
-        //     loanId = loanId,
-        //     onDismiss = { showRecordInstallmentSheet = false },
-        //     onSuccess = { showRecordInstallmentSheet = false }
-        // )
+    
+    // Bottom Sheet
+    if (showRecordInstallmentSheet && loan != null) {
+        RecordInstallmentBottomSheet(
+            loanId = loanId,
+            customerName = loan?.customerName ?: "",
+            installmentNumber = installments.size + 1,
+            suggestedAmount = loan?.installmentAmount ?: 0.0,
+            onDismiss = { showRecordInstallmentSheet = false },
+            onSave = { amount, date, receipt, lateFee ->
+                // TODO: Call viewModel.recordInstallment(...)
+                showRecordInstallmentSheet = false
+            }
+        )
     }
 }
 
@@ -194,13 +207,31 @@ fun LoanDetailRow(
     }
 }
 
-// Temporary mock data class
-data class MockLoanDetail(
-    val id: String,
-    val customerName: String,
-    val originalAmount: Double,
-    val interestAmount: Double,
-    val paymentDate: String,
-    val totalInstalments: Int,
-    val installmentsPaid: Int
-)
+@Composable
+fun InstallmentItem(amount: Double, date: String, status: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "₹${String.format("%,.0f", amount)}",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = date,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = status,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
