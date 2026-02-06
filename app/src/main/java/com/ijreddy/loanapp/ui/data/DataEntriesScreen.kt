@@ -118,9 +118,11 @@ fun DataEntriesScreen(
                                 onTap = { },
                                 onLongPress = { }
                             )
-                        }
-                    }
                 }
+            }
+        }
+    }
+
     if (showAddSheet) {
         RecordDataEntryBottomSheet(
             onDismiss = { showAddSheet = false },
