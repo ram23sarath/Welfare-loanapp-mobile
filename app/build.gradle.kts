@@ -117,6 +117,16 @@ dependencies {
 
     // Charts (optional, for SummaryPage)
     implementation(libs.mpandroidchart)
+    implementation(libs.vico.compose)
+    implementation(libs.vico.core)
+    
+    // WorkManager (for background sync)
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.compiler)
+    
+    // Splash Screen
+    implementation(libs.androidx.splashscreen)
 
     // Testing
     testImplementation(libs.junit)
