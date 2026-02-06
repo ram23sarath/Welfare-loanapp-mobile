@@ -30,6 +30,10 @@ class SubscriptionViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
     
+import kotlinx.coroutines.flow.combine
+
+// ...
+
     val subscriptions: StateFlow<List<SubscriptionUiModel>> = combine(
         subscriptionRepository.subscriptions,
         customerRepository.customers,
@@ -41,9 +45,9 @@ class SubscriptionViewModel @Inject constructor(
                 id = sub.id,
                 customerName = customerMap[sub.customer_id]?.name ?: "Unknown",
                 amount = sub.amount,
-                date = sub.date,
-                receiptNumber = sub.receipt_number ?: "", // Assuming receipt_number exists in entity
-                lateFee = sub.late_fee
+                date = sub.start_date,
+                receiptNumber = "", // Not in entity
+                lateFee = 0.0 // Not in entity
             )
         }.filter { 
             query.isBlank() || it.customerName.contains(query, ignoreCase = true)

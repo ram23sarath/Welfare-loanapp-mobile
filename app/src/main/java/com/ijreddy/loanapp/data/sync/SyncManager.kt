@@ -27,7 +27,23 @@ class SyncManager @Inject constructor(
      * Queue a local change for synchronization.
      * Automatically triggers immediate sync if online.
      */
-    suspend fun <T> queueOperation(
+    @PublishedApi
+    internal val pendingSyncDaoInternal: PendingSyncDao
+        get() = pendingSyncDao
+
+    @PublishedApi
+    internal val networkMonitorInternal: NetworkMonitor
+        get() = networkMonitor
+
+    @PublishedApi
+    internal val syncSchedulerInternal: SyncScheduler
+        get() = syncScheduler
+
+    /**
+     * Queue a local change for synchronization.
+     * Automatically triggers immediate sync if online.
+     */
+    suspend inline fun <reified T> queueOperation(
         table: String,
         recordId: String,
         operation: String, // INSERT, UPDATE, DELETE
@@ -42,10 +58,10 @@ class SyncManager @Inject constructor(
             payload = jsonPayload
         )
         
-        pendingSyncDao.insert(item)
+        pendingSyncDaoInternal.insert(item)
         
-        if (networkMonitor.isCurrentlyOnline()) {
-            syncScheduler.triggerImmediateSync()
+        if (networkMonitorInternal.isCurrentlyOnline()) {
+            syncSchedulerInternal.triggerImmediateSync()
         }
     }
     

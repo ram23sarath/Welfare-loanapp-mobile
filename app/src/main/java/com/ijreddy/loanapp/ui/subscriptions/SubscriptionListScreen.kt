@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.ijreddy.loanapp.ui.components.PullToRefreshContainer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,7 +20,6 @@ import com.ijreddy.loanapp.ui.dialogs.SoftDeleteDialog
  * Subscription list screen with card layout, swipe actions, and pull-to-refresh.
  * Replaces SubscriptionTableView from web.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionListScreen(
@@ -78,7 +77,7 @@ fun SubscriptionListScreen(
         },
         modifier = modifier
     ) { padding ->
-        PullToRefreshBox(
+        PullToRefreshContainer(
             isRefreshing = isLoading,
             onRefresh = { /* Sync handled by SyncManager */ },
             modifier = Modifier

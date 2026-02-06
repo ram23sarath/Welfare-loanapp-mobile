@@ -21,7 +21,6 @@ import com.ijreddy.loanapp.ui.sheets.RecordDataEntryBottomSheet
  * Replaces DataPage table layout.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataEntriesScreen(
     onNavigateBack: () -> Unit,

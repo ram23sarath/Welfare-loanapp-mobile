@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.ijreddy.loanapp.ui.components.PullToRefreshContainer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,6 +16,7 @@ import com.ijreddy.loanapp.ui.common.LoanCard
 import com.ijreddy.loanapp.ui.common.SwipeableListItem
 import com.ijreddy.loanapp.ui.dialogs.SoftDeleteDialog
 import com.ijreddy.loanapp.ui.sheets.RecordLoanBottomSheet
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 
 
@@ -96,12 +97,13 @@ fun LoanListScreenFull(
         },
         modifier = modifier
     ) { padding ->
-        PullToRefreshBox(
+        val scope = rememberCoroutineScope()
+        
+        PullToRefreshContainer(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                // Simulate refresh
-                kotlinx.coroutines.MainScope().launch {
+                scope.launch {
                     delay(1000)
                     isRefreshing = false
                 }

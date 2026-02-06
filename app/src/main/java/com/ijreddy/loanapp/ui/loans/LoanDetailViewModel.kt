@@ -25,10 +25,16 @@ class LoanDetailViewModel @Inject constructor(
 
     private val loanId: String = checkNotNull(savedStateHandle["loanId"])
 
+import kotlinx.coroutines.flow.combine
+import com.ijreddy.loanapp.data.local.entity.LoanEntity
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+
+// ...
+
     val loan: StateFlow<LoanUiModel?> = combine(
-        repository.getLoan(loanId),
+        repository.getById(loanId),
         customerRepository.customers
-    ) { loanEntity, customers ->
+    ) { loanEntity: LoanEntity?, customers: List<CustomerEntity> ->
         loanEntity?.let {
             val customer = customers.find { c -> c.id == it.customer_id }
             it.toUiModel(customer?.name ?: "Unknown")
