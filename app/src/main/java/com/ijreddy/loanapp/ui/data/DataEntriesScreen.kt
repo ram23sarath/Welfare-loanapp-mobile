@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.ui.common.DataEntryCard
 import com.ijreddy.loanapp.ui.common.DataEntryType
 import com.ijreddy.loanapp.ui.common.SwipeableListItem
+import com.ijreddy.loanapp.ui.sheets.RecordDataEntryBottomSheet
 
 /**
  * Data entries screen with segmented control for type filtering.
@@ -120,7 +121,13 @@ fun DataEntriesScreen(
                         }
                     }
                 }
+    if (showAddSheet) {
+        RecordDataEntryBottomSheet(
+            onDismiss = { showAddSheet = false },
+            onSave = { amount, date, type, description, category ->
+                viewModel.addDataEntry(amount, date, type, description, category)
+                showAddSheet = false
             }
-        }
+        )
     }
 }

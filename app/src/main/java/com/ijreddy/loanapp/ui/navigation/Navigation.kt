@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.ijreddy.loanapp.ui.auth.LoginScreen
 import com.ijreddy.loanapp.ui.auth.AuthViewModel
 import com.ijreddy.loanapp.ui.customers.CustomerDetailScreen
+import com.ijreddy.loanapp.ui.customers.CustomerListScreen
 import com.ijreddy.loanapp.ui.dashboard.DashboardScreen
 import com.ijreddy.loanapp.ui.data.DataEntriesScreen
 import com.ijreddy.loanapp.ui.loans.LoanListScreen
@@ -106,11 +107,29 @@ fun LoanAppNavigation(
             )
         }
 
-        // TODO: Add remaining screens:
-        // - CustomerListScreen (admin only)
-        // - LoanSeniorityScreen  
-        // - TrashScreen (admin only)
-        // - AddRecordScreen (admin only)
+        // Customer List
+        composable(Screen.Customers.route) {
+            CustomerListScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDetail = { customerId ->
+                    navController.navigate(Screen.CustomerDetail.createRoute(customerId))
+                }
+            )
+        }
+        
+        // Trash (Placeholder for now)
+        composable(Screen.Trash.route) {
+            Box(androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { 
+                androidx.compose.material3.Text("Trash Screen (Coming Soon)") 
+            }
+        }
+        
+        // Add Record (Placeholder for now)
+        composable(Screen.AddRecord.route) {
+             Box(androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { 
+                androidx.compose.material3.Text("Add Record Screen (Coming Soon)") 
+            }
+        }
         
         // Customer Detail
         composable(

@@ -7,6 +7,7 @@ import com.ijreddy.loanapp.data.repository.DataEntryRepository
 import com.ijreddy.loanapp.ui.common.DataEntryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class DataEntryUiModel(
@@ -60,5 +61,24 @@ class DataViewModel @Inject constructor(
 
     fun setTypeFilter(type: DataEntryType?) {
         _selectedType.value = type
+    }
+    
+    fun addDataEntry(amount: Double, date: String, type: DataEntryType, description: String, category: String?) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // TODO: Using dummy customer_id if not customer specific context, OR handle null in repository
+                repository.add(
+                    customerId = null, // Generic entry
+                    amount = amount,
+                    type = type.name.lowercase(),
+                    description = description,
+                    date = date,
+                    category = category
+                )
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }
