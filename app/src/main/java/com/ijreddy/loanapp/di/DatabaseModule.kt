@@ -49,4 +49,7 @@ object DatabaseModule {
     
     @Provides
     fun provideSeniorityDao(db: LoanAppDatabase): SeniorityDao = db.seniorityDao()
+    
+    @Provides
+    fun providePendingSyncDao(db: LoanAppDatabase): PendingSyncDao = db.pendingSyncDao()
 }

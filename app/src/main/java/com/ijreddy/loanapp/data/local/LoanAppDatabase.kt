@@ -16,9 +16,10 @@ import com.ijreddy.loanapp.data.local.entity.*
         SubscriptionEntity::class,
         InstallmentEntity::class,
         DataEntryEntity::class,
-        LoanSeniorityEntity::class
+        LoanSeniorityEntity::class,
+        PendingSyncEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class LoanAppDatabase : RoomDatabase() {
@@ -28,4 +29,5 @@ abstract class LoanAppDatabase : RoomDatabase() {
     abstract fun installmentDao(): InstallmentDao
     abstract fun dataEntryDao(): DataEntryDao
     abstract fun seniorityDao(): SeniorityDao
+    abstract fun pendingSyncDao(): PendingSyncDao
 }
