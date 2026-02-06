@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.ui.common.DataEntryCard
 import com.ijreddy.loanapp.ui.common.DataEntryType
 import com.ijreddy.loanapp.ui.common.SwipeableListItem
@@ -18,30 +20,17 @@ import com.ijreddy.loanapp.ui.common.SwipeableListItem
  * Replaces DataPage table layout.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataEntriesScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DataViewModel = hiltViewModel()
 ) {
-    var selectedType by remember { mutableStateOf<DataEntryType?>(null) }
+    val entries by viewModel.entries.collectAsState()
+    val selectedType by viewModel.selectedType.collectAsState()
     var showAddSheet by remember { mutableStateOf(false) }
-    
-    // Mock data
-    val entries = remember {
-        listOf(
-            EntryData("1", "Priya Sharma", 5000.0, "2024-12-15", "ENT-001", DataEntryType.CREDIT, "Bonus", null),
-            EntryData("2", "Rahul Verma", 1500.0, "2024-12-10", "ENT-002", DataEntryType.DEBIT, null, null),
-            EntryData("3", null, 2500.0, "2024-12-08", "ENT-003", DataEntryType.EXPENSE, null, "Office Supplies"),
-            EntryData("4", "Sneha Reddy", 3000.0, "2024-12-05", "ENT-004", DataEntryType.CREDIT, "Refund", null),
-            EntryData("5", null, 1200.0, "2024-12-01", "ENT-005", DataEntryType.EXPENSE, null, "Travel"),
-            EntryData("6", "Amit Kumar", 800.0, "2024-11-28", "ENT-006", DataEntryType.DEBIT, null, null)
-        )
-    }
-    
-    val filteredEntries = if (selectedType == null) entries else {
-        entries.filter { it.type == selectedType }
-    }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -73,25 +62,25 @@ fun DataEntriesScreen(
             ) {
                 SegmentedButton(
                     selected = selectedType == null,
-                    onClick = { selectedType = null },
+                    onClick = { viewModel.setTypeFilter(null) },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 4),
                     label = { Text("All") }
                 )
                 SegmentedButton(
                     selected = selectedType == DataEntryType.CREDIT,
-                    onClick = { selectedType = DataEntryType.CREDIT },
+                    onClick = { viewModel.setTypeFilter(DataEntryType.CREDIT) },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 4),
                     label = { Text("Credit") }
                 )
                 SegmentedButton(
                     selected = selectedType == DataEntryType.DEBIT,
-                    onClick = { selectedType = DataEntryType.DEBIT },
+                    onClick = { viewModel.setTypeFilter(DataEntryType.DEBIT) },
                     shape = SegmentedButtonDefaults.itemShape(index = 2, count = 4),
                     label = { Text("Debit") }
                 )
                 SegmentedButton(
                     selected = selectedType == DataEntryType.EXPENSE,
-                    onClick = { selectedType = DataEntryType.EXPENSE },
+                    onClick = { viewModel.setTypeFilter(DataEntryType.EXPENSE) },
                     shape = SegmentedButtonDefaults.itemShape(index = 3, count = 4),
                     label = { Text("Expense") }
                 )
@@ -102,36 +91,36 @@ fun DataEntriesScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filteredEntries, key = { it.id }) { entry ->
-                    SwipeableListItem(
-                        onEdit = { },
-                        onDelete = { }
-                    ) {
-                        DataEntryCard(
-                            customerName = entry.customerName,
-                            amount = entry.amount,
-                            date = entry.date,
-                            receiptNumber = entry.receiptNumber,
-                            type = entry.type,
-                            notes = entry.notes,
-                            subtype = entry.subtype,
-                            onTap = { },
-                            onLongPress = { }
-                        )
+                if (entries.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillParentMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No entries found")
+                        }
+                    }
+                } else {
+                    items(entries, key = { it.id }) { entry ->
+                        SwipeableListItem(
+                            onEdit = { },
+                            onDelete = { }
+                        ) {
+                            DataEntryCard(
+                                customerName = entry.customerName,
+                                amount = entry.amount,
+                                date = entry.date,
+                                receiptNumber = entry.receiptNumber,
+                                type = entry.type,
+                                notes = entry.notes,
+                                subtype = entry.subtype,
+                                onTap = { },
+                                onLongPress = { }
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-
-private data class EntryData(
-    val id: String,
-    val customerName: String?,
-    val amount: Double,
-    val date: String,
-    val receiptNumber: String,
-    val type: DataEntryType,
-    val notes: String?,
-    val subtype: String?
-)

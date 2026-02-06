@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 data class DataEntryEntity(
     @PrimaryKey
     val id: String,
+    val customer_id: String? = null,
     val type: String, // credit, debit, expense
     val amount: Double,
     val description: String,
