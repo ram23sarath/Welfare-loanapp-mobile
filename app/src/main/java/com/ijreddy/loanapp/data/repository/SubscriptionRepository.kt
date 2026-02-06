@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * Supports offline-first data access and synchronization.
  */
 @Singleton
-@Singleton
+
 class SubscriptionRepository @Inject constructor(
     private val subscriptionDao: SubscriptionDao,
     private val postgrest: Postgrest,
@@ -41,16 +41,15 @@ class SubscriptionRepository @Inject constructor(
                 id = java.util.UUID.randomUUID().toString(),
                 customer_id = customerId,
                 amount = amount,
-                date = java.time.LocalDate.now().toString(),
-                created_at = java.time.OffsetDateTime.now().toString(),
-                sync_status = "pending_create"
+                start_date = java.time.LocalDate.now().toString(),
+                created_at = java.time.OffsetDateTime.now().toString()
             )
             
             // Local insert
             subscriptionDao.insert(entity)
             
             // Queue for sync
-            syncManager.queueOperation("subscriptions", entity.id, "INSERT", entity.asExternalModel())
+            syncManager.queueOperation("subscriptions", entity.id, "INSERT", entity)
             
             Result.success(entity)
         } catch (e: Exception) {

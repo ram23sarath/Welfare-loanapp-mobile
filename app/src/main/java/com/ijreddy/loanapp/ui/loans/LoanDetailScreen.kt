@@ -156,8 +156,8 @@ fun LoanDetailScreen(
                 items(installments) { installment ->
                     InstallmentItem(
                         amount = installment.amount,
-                        date = installment.date,
-                        status = "Paid" // Default for now
+                        date = installment.paid_date ?: installment.due_date,
+                        status = installment.status.uppercase()
                     )
                     Divider()
                 }

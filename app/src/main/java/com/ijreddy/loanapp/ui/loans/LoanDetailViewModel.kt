@@ -31,7 +31,7 @@ class LoanDetailViewModel @Inject constructor(
 
 
     val loan: StateFlow<LoanUiModel?> = combine(
-        repository.getById(loanId),
+        kotlinx.coroutines.flow.flow { emit(repository.getById(loanId)) },
         customerRepository.customers
     ) { loanEntity: LoanEntity?, customers: List<CustomerEntity> ->
         loanEntity?.let {

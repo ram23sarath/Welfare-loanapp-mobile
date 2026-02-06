@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * Repository for managing loan installments.
  */
 @Singleton
-@Singleton
+
 class InstallmentRepository @Inject constructor(
     private val installmentDao: InstallmentDao,
     private val postgrest: Postgrest,

@@ -51,7 +51,7 @@ class DataViewModel @Inject constructor(
                     date = entry.date,
                     receiptNumber = entry.id.take(8), // Placeholder if receipt isn't stored
                     type = DataEntryType.valueOf(entry.type.uppercase()),
-                    notes = entry.notes,
+                    notes = entry.description,
                     subtype = entry.category // Mapping category to subtype
                 )
             }
