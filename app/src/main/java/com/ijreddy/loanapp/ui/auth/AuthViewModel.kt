@@ -2,98 +2,120 @@ package com.ijreddy.loanapp.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ijreddy.loanapp.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class AuthUiState(
-    val isLoading: Boolean = false,
-    val isAuthenticated: Boolean = false,
-    val error: String? = null
-)
-
+/**
+ * ViewModel handling authentication state and actions.
+ * Exposes session state as StateFlows for Compose observation.
+ */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    // TODO: Inject AuthRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(AuthUiState())
-    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
-
-    private val _isAuthenticated = MutableStateFlow(false)
-    val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
-
-    private val _isScopedCustomer = MutableStateFlow(false)
-    val isScopedCustomer: StateFlow<Boolean> = _isScopedCustomer.asStateFlow()
-
+    
+    // Authentication state
+    val isAuthenticated: StateFlow<Boolean> = authRepository.isAuthenticated
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    
+    val isScopedCustomer: StateFlow<Boolean> = authRepository.isScopedCustomer
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    
+    val scopedCustomerId: StateFlow<String?> = authRepository.scopedCustomerId
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    
+    // UI state
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    private val _loginError = MutableSharedFlow<String>()
+    val loginError = _loginError.asSharedFlow()
+    
+    private val _loginSuccess = MutableSharedFlow<Unit>()
+    val loginSuccess = _loginSuccess.asSharedFlow()
+    
     init {
-        checkSession()
+        initializeSession()
     }
-
-    private fun checkSession() {
+    
+    /**
+     * Initialize session from stored tokens on app start.
+     */
+    private fun initializeSession() {
         viewModelScope.launch {
-            // TODO: Check stored session via Supabase
-            // For now, start unauthenticated
-            _isAuthenticated.value = false
-        }
-    }
-
-    fun login(emailOrPhone: String, password: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-
             try {
-                // Normalize phone to email format (matching web app pattern)
-                val email = normalizeIdentifier(emailOrPhone)
-
-                // TODO: Implement actual Supabase auth
-                // val response = supabase.auth.signInWith(Email) {
-                //     this.email = email
-                //     this.password = password
-                // }
-
-                // Temporary: Simulate success for structure testing
-                // Remove this when implementing real auth
-                _isAuthenticated.value = true
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    isAuthenticated = true
-                )
-
+                authRepository.initializeSession()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Login failed"
-                )
+                // Session initialization failed, user needs to log in
+            } finally {
+                _isLoading.value = false
             }
         }
     }
-
-    fun logout() {
+    
+    /**
+     * Sign in with phone/email and password.
+     */
+    fun signIn(identifier: String, password: String) {
         viewModelScope.launch {
-            // TODO: Clear session via Supabase
-            _isAuthenticated.value = false
-            _isScopedCustomer.value = false
-            _uiState.value = AuthUiState()
+            _isLoading.value = true
+            
+            val result = authRepository.signIn(identifier, password)
+            
+            result.fold(
+                onSuccess = {
+                    _loginSuccess.emit(Unit)
+                },
+                onFailure = { error ->
+                    _loginError.emit(parseAuthError(error))
+                }
+            )
+            
+            _isLoading.value = false
         }
     }
-
+    
     /**
-     * Convert phone numbers to email format matching web app pattern:
-     * 1234567890 -> 1234567890@loanapp.local
+     * Sign out current user.
      */
-    private fun normalizeIdentifier(value: String): String {
-        val trimmed = value.trim()
-        
-        // If it looks like a phone number (digits only, 10 digits)
-        if (trimmed.all { it.isDigit() } && trimmed.length == 10) {
-            return "$trimmed@loanapp.local"
+    fun logout() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            authRepository.signOut()
+            _isLoading.value = false
         }
+    }
+    
+    /**
+     * Get current user ID for data queries.
+     */
+    fun getCurrentUserId(): String? = authRepository.getCurrentUserId()
+    
+    /**
+     * Parse auth errors into user-friendly messages.
+     */
+    private fun parseAuthError(error: Throwable): String {
+        val message = error.message ?: "Authentication failed"
         
-        // Otherwise treat as email
-        return trimmed.lowercase()
+        return when {
+            message.contains("Invalid login credentials", ignoreCase = true) ->
+                "Invalid phone number or password"
+            message.contains("Email not confirmed", ignoreCase = true) ->
+                "Please verify your email address"
+            message.contains("network", ignoreCase = true) ->
+                "Network error. Please check your connection."
+            message.contains("rate limit", ignoreCase = true) ->
+                "Too many attempts. Please try again later."
+            else -> message
+        }
     }
 }
