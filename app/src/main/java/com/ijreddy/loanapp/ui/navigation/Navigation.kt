@@ -15,10 +15,12 @@ import com.ijreddy.loanapp.ui.auth.LoginScreen
 import com.ijreddy.loanapp.ui.auth.AuthViewModel
 import com.ijreddy.loanapp.ui.customers.CustomerDetailScreen
 import com.ijreddy.loanapp.ui.customers.CustomerListScreen
+import com.ijreddy.loanapp.ui.customers.AddCustomerScreen
 import com.ijreddy.loanapp.ui.dashboard.DashboardScreen
 import com.ijreddy.loanapp.ui.data.DataEntriesScreen
 import com.ijreddy.loanapp.ui.loans.LoanListScreen
 import com.ijreddy.loanapp.ui.loans.LoanDetailScreen
+import com.ijreddy.loanapp.ui.records.AddRecordScreen
 import com.ijreddy.loanapp.ui.subscriptions.SubscriptionListScreen
 import com.ijreddy.loanapp.ui.summary.SummaryScreen
 
@@ -39,6 +41,7 @@ sealed class Screen(val route: String) {
     object Data : Screen("data")
     object Trash : Screen("trash")
     object AddRecord : Screen("add-record")
+    object AddCustomer : Screen("add-customer")
 }
 
 @Composable
@@ -79,6 +82,8 @@ fun LoanAppNavigation(
                 onNavigateToSeniority = { navController.navigate(Screen.LoanSeniority.route) },
                 onNavigateToSummary = { navController.navigate(Screen.Summary.route) },
                 onNavigateToCustomers = { navController.navigate(Screen.Customers.route) },
+                onNavigateToAddCustomer = { navController.navigate(Screen.AddCustomer.route) },
+                onNavigateToAddRecord = { navController.navigate(Screen.AddRecord.route) },
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Screen.Login.route) {
@@ -115,7 +120,8 @@ fun LoanAppNavigation(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToDetail = { customerId ->
                     navController.navigate(Screen.CustomerDetail.createRoute(customerId))
-                }
+                },
+                onNavigateToAddCustomer = { navController.navigate(Screen.AddCustomer.route) }
             )
         }
         
@@ -128,9 +134,20 @@ fun LoanAppNavigation(
         
         // Add Record (Placeholder for now)
         composable(Screen.AddRecord.route) {
-             Box(androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { 
-                androidx.compose.material3.Text("Add Record Screen (Coming Soon)") 
-            }
+            AddRecordScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLoans = { navController.navigate(Screen.Loans.route) },
+                onNavigateToSubscriptions = { navController.navigate(Screen.Subscriptions.route) },
+                onNavigateToDataEntries = { navController.navigate(Screen.Data.route) }
+            )
+        }
+
+        // Add Customer
+        composable(Screen.AddCustomer.route) {
+            AddCustomerScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onCustomerAdded = { navController.popBackStack() }
+            )
         }
         
         // Customer Detail

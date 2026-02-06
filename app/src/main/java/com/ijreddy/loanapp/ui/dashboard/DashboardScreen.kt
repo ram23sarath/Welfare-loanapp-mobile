@@ -21,6 +21,8 @@ fun DashboardScreen(
     onNavigateToSeniority: () -> Unit,
     onNavigateToSummary: () -> Unit,
     onNavigateToCustomers: () -> Unit = {}, // Only for admin
+    onNavigateToAddCustomer: () -> Unit,
+    onNavigateToAddRecord: () -> Unit,
     onLogout: () -> Unit
 ) {
     if (isScopedCustomer) {
@@ -51,7 +53,9 @@ fun DashboardScreen(
                 AdminDashboardContent(
                     onNavigateToCustomers = onNavigateToCustomers,
                     onNavigateToLoans = onNavigateToLoans,
-                    onNavigateToSummary = onNavigateToSummary
+                    onNavigateToSummary = onNavigateToSummary,
+                    onNavigateToAddCustomer = onNavigateToAddCustomer,
+                    onNavigateToAddRecord = onNavigateToAddRecord
                 )
             }
         }

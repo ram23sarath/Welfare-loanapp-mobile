@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
+import java.math.BigDecimal
 import javax.inject.Inject
 
 data class SubscriptionUiModel(
@@ -52,6 +53,9 @@ class SubscriptionViewModel @Inject constructor(
             query.isBlank() || it.customerName.contains(query, ignoreCase = true)
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val customerList: StateFlow<List<com.ijreddy.loanapp.data.local.entity.CustomerEntity>> = customerRepository.customers
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
@@ -60,6 +64,12 @@ class SubscriptionViewModel @Inject constructor(
     fun softDelete(id: String) {
         viewModelScope.launch {
             subscriptionRepository.softDelete(id)
+        }
+    }
+
+    fun addSubscription(customerId: String, amount: BigDecimal) {
+        viewModelScope.launch {
+            subscriptionRepository.add(customerId, amount.toDouble())
         }
     }
 }

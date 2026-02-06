@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.R
 import com.ijreddy.loanapp.ui.sheets.RecordInstallmentBottomSheet
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +30,7 @@ fun LoanDetailScreen(
 ) {
     val loan by viewModel.loan.collectAsState()
     val installments by viewModel.installments.collectAsState()
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
     
     var showRecordInstallmentSheet by remember { mutableStateOf(false) }
 
@@ -84,6 +89,13 @@ fun LoanDetailScreen(
     
                 // Loan Summary Card
                 item {
+                    val principal = BigDecimal.valueOf(currentLoan.principal)
+                    val interestRate = BigDecimal.valueOf(currentLoan.interestRate)
+                    val interestAmount = principal
+                        .multiply(interestRate)
+                        .divide(BigDecimal.valueOf(100.0), 2, RoundingMode.HALF_UP)
+                    val totalAmount = principal.add(interestAmount)
+
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -97,16 +109,16 @@ fun LoanDetailScreen(
                         ) {
                             LoanDetailRow(
                                 label = stringResource(R.string.original_amount),
-                                value = "₹${String.format("%,.0f", currentLoan.principal)}"
+                                value = currencyFormat.format(principal)
                             )
                             LoanDetailRow(
                                 label = stringResource(R.string.interest_amount),
-                                value = "₹${String.format("%,.0f", (currentLoan.principal * currentLoan.interestRate / 100))}" // Approx calc
+                                value = currencyFormat.format(interestAmount)
                             )
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
                             LoanDetailRow(
                                 label = "Total",
-                                value = "₹${String.format("%,.0f", currentLoan.principal + (currentLoan.principal * currentLoan.interestRate / 100))}",
+                                value = currencyFormat.format(totalAmount),
                                 isTotal = true
                             )
                         }
@@ -209,6 +221,7 @@ fun LoanDetailRow(
 
 @Composable
 fun InstallmentItem(amount: Double, date: String, status: String) {
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -218,7 +231,7 @@ fun InstallmentItem(amount: Double, date: String, status: String) {
     ) {
         Column {
             Text(
-                text = "₹${String.format("%,.0f", amount)}",
+                text = currencyFormat.format(BigDecimal.valueOf(amount)),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold
             )

@@ -23,6 +23,7 @@ import com.ijreddy.loanapp.data.local.entity.CustomerEntity
 fun CustomerListScreen(
     onNavigateBack: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
+    onNavigateToAddCustomer: () -> Unit,
     viewModel: CustomerListViewModel = hiltViewModel()
 ) {
     val customers by viewModel.customers.collectAsState()
@@ -70,7 +71,7 @@ fun CustomerListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* TODO: Add New Customer navigation */ }) {
+            FloatingActionButton(onClick = onNavigateToAddCustomer) {
                 Icon(Icons.Default.Add, contentDescription = "Add Customer")
             }
         }

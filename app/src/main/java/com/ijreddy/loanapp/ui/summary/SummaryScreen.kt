@@ -1,12 +1,39 @@
 package com.ijreddy.loanapp.ui.summary
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocalAtm
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,34 +43,23 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
 /**
  * Summary screen showing financial overview with charts.
- * Replaces Chart.js charts with Compose Canvas.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SummaryScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SummaryViewModel = hiltViewModel()
 ) {
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
-    
-    // Mock financial data
-    val financialData = remember {
-        FinancialSummary(
-            totalIncome = 850000.0,
-            totalExpenses = 125000.0,
-            loanDisbursed = 500000.0,
-            loanCollected = 425000.0,
-            subscriptionTotal = 72000.0,
-            interestEarned = 50000.0
-        )
-    }
-    
-    val netTotal = financialData.totalIncome - financialData.totalExpenses
+    val summary by viewModel.summary.collectAsState()
     
     Scaffold(
         topBar = {
@@ -69,7 +85,7 @@ fun SummaryScreen(
             item {
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = if (netTotal >= 0) {
+                        containerColor = if (summary.netTotal >= BigDecimal.ZERO) {
                             Color(0xFF10B981).copy(alpha = 0.15f)
                         } else {
                             Color(0xFFEF4444).copy(alpha = 0.15f)
@@ -90,39 +106,76 @@ fun SummaryScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = currencyFormat.format(netTotal),
+                            text = currencyFormat.format(summary.netTotal),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
-                            color = if (netTotal >= 0) Color(0xFF10B981) else Color(0xFFEF4444)
+                            color = if (summary.netTotal >= BigDecimal.ZERO) Color(0xFF10B981) else Color(0xFFEF4444)
                         )
                     }
                 }
             }
             
-            // Income and Expenses Row
+            // Credits, Debits, Expenses Row
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     SummaryCard(
-                        title = "Income",
-                        amount = currencyFormat.format(financialData.totalIncome),
+                        title = "Credits",
+                        amount = currencyFormat.format(summary.totalCredits),
                         icon = Icons.Default.TrendingUp,
                         color = Color(0xFF10B981),
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
+                        title = "Debits",
+                        amount = currencyFormat.format(summary.totalDebits),
+                        icon = Icons.Default.TrendingDown,
+                        color = Color(0xFFF59E0B),
+                        modifier = Modifier.weight(1f)
+                    )
+                    SummaryCard(
                         title = "Expenses",
-                        amount = currencyFormat.format(financialData.totalExpenses),
+                        amount = currencyFormat.format(summary.totalExpenses),
                         icon = Icons.Default.TrendingDown,
                         color = Color(0xFFEF4444),
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
+
+            // Collections Row
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    SummaryCard(
+                        title = "Subscriptions",
+                        amount = currencyFormat.format(summary.totalSubscriptions),
+                        icon = Icons.Default.Payments,
+                        color = Color(0xFF6366F1),
+                        modifier = Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        title = "Interest",
+                        amount = currencyFormat.format(summary.totalInterestCharged),
+                        icon = Icons.Default.LocalAtm,
+                        color = Color(0xFF10B981),
+                        modifier = Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        title = "Entries",
+                        amount = summary.totalEntries.toString(),
+                        icon = Icons.Default.ReceiptLong,
+                        color = Color(0xFF0EA5E9),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
             
-            // Donut Chart
+            // Collections Breakdown
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(
@@ -130,17 +183,17 @@ fun SummaryScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Income Breakdown",
+                            text = "Collections Breakdown",
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(Modifier.height(16.dp))
                         
                         DonutChart(
                             values = listOf(
-                                ChartValue("Loans Collected", financialData.loanCollected, Color(0xFF6366F1)),
-                                ChartValue("Subscriptions", financialData.subscriptionTotal, Color(0xFF10B981)),
-                                ChartValue("Interest", financialData.interestEarned, Color(0xFFF59E0B))
-                            ),
+                                ChartValue("Loans Collected", summary.totalInstallmentsPaid, Color(0xFF6366F1)),
+                                ChartValue("Subscriptions", summary.totalSubscriptions, Color(0xFF10B981)),
+                                ChartValue("Interest", summary.totalInterestCharged, Color(0xFFF59E0B))
+                            ).filter { it.value > BigDecimal.ZERO },
                             modifier = Modifier.size(200.dp)
                         )
                         
@@ -149,10 +202,14 @@ fun SummaryScreen(
                         // Legend
                         ChartLegend(
                             items = listOf(
-                                LegendItem("Loans Collected", Color(0xFF6366F1), currencyFormat.format(financialData.loanCollected)),
-                                LegendItem("Subscriptions", Color(0xFF10B981), currencyFormat.format(financialData.subscriptionTotal)),
-                                LegendItem("Interest", Color(0xFFF59E0B), currencyFormat.format(financialData.interestEarned))
+                                Triple("Loans Collected", Color(0xFF6366F1), summary.totalInstallmentsPaid),
+                                Triple("Subscriptions", Color(0xFF10B981), summary.totalSubscriptions),
+                                Triple("Interest", Color(0xFFF59E0B), summary.totalInterestCharged)
                             )
+                                .filter { it.third > BigDecimal.ZERO }
+                                .map { (label, color, amount) ->
+                                    LegendItem(label, color, currencyFormat.format(amount))
+                                }
                         )
                     }
                 }
@@ -165,14 +222,31 @@ fun SummaryScreen(
                         Text("Loan Statistics", style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(12.dp))
                         
-                        StatRow("Disbursed", currencyFormat.format(financialData.loanDisbursed))
-                        StatRow("Collected", currencyFormat.format(financialData.loanCollected))
+                        StatRow("Disbursed", currencyFormat.format(summary.totalLoanPrincipal))
+                        StatRow("Collected", currencyFormat.format(summary.totalInstallmentsPaid))
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
                         StatRow(
                             "Outstanding",
-                            currencyFormat.format(financialData.loanDisbursed - financialData.loanCollected),
+                            currencyFormat.format(summary.loanBalance),
                             isHighlighted = true
                         )
+                    }
+                }
+            }
+
+            // Expense Breakdown
+            if (summary.expenseBreakdown.isNotEmpty()) {
+                item {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Expenses by Category", style = MaterialTheme.typography.titleMedium)
+                            summary.expenseBreakdown.forEach { item ->
+                                StatRow(item.label, currencyFormat.format(item.amount))
+                            }
+                        }
                     }
                 }
             }
@@ -211,7 +285,13 @@ private fun DonutChart(
     values: List<ChartValue>,
     modifier: Modifier = Modifier
 ) {
-    val total = values.sumOf { it.value }
+    val total = values.fold(BigDecimal.ZERO) { acc, value -> acc.add(value.value) }
+    if (total == BigDecimal.ZERO) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            Text("No data")
+        }
+        return
+    }
     
     Canvas(modifier = modifier) {
         val strokeWidth = 40.dp.toPx()
@@ -221,7 +301,9 @@ private fun DonutChart(
         var startAngle = -90f
         
         values.forEach { value ->
-            val sweepAngle = (value.value / total * 360).toFloat()
+            val sweepAngle = value.value.divide(total, 6, java.math.RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(360.0))
+                .toFloat()
             drawArc(
                 color = value.color,
                 startAngle = startAngle,
@@ -272,14 +354,5 @@ private fun StatRow(label: String, value: String, isHighlighted: Boolean = false
     }
 }
 
-private data class FinancialSummary(
-    val totalIncome: Double,
-    val totalExpenses: Double,
-    val loanDisbursed: Double,
-    val loanCollected: Double,
-    val subscriptionTotal: Double,
-    val interestEarned: Double
-)
-
-private data class ChartValue(val label: String, val value: Double, val color: Color)
+private data class ChartValue(val label: String, val value: BigDecimal, val color: Color)
 private data class LegendItem(val label: String, val color: Color, val value: String)

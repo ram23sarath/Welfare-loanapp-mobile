@@ -164,6 +164,7 @@ fun LoanListScreenFull(
             onDismiss = { showAddLoanSheet = false },
             onSave = { _, _, _, _, _ ->
                 showAddLoanSheet = false
+                true
             }
         )
     }

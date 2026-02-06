@@ -11,10 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
 import com.ijreddy.loanapp.ui.common.ContextMenuDropdown
 import com.ijreddy.loanapp.ui.common.SubscriptionCard
 import com.ijreddy.loanapp.ui.common.SwipeableListItem
 import com.ijreddy.loanapp.ui.dialogs.SoftDeleteDialog
+import com.ijreddy.loanapp.ui.sheets.RecordSubscriptionBottomSheet
+import java.math.BigDecimal
 
 /**
  * Subscription list screen with card layout, swipe actions, and pull-to-refresh.
@@ -30,11 +33,14 @@ fun SubscriptionListScreen(
     val subscriptions by viewModel.subscriptions.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val customers by viewModel.customerList.collectAsState()
     
     var isSearchExpanded by remember { mutableStateOf(false) }
     var contextMenuId by remember { mutableStateOf<String?>(null) }
     var deleteDialogId by remember { mutableStateOf<String?>(null) }
     var showAddSheet by remember { mutableStateOf(false) }
+    var showCustomerPicker by remember { mutableStateOf(false) }
+    var selectedCustomer by remember { mutableStateOf<CustomerEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -71,7 +77,7 @@ fun SubscriptionListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddSheet = true }) {
+            FloatingActionButton(onClick = { showCustomerPicker = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Subscription")
             }
         },
@@ -132,6 +138,59 @@ fun SubscriptionListScreen(
     }
     
     if (showAddSheet) {
-        // Placeholder for Add Sheet - needs to be implemented or connected
+        RecordSubscriptionBottomSheet(
+            customerId = selectedCustomer?.id.orEmpty(),
+            customerName = selectedCustomer?.name.orEmpty(),
+            onDismiss = { showAddSheet = false },
+            onSave = { amount, _, _, _ ->
+                viewModel.addSubscription(
+                    customerId = selectedCustomer?.id.orEmpty(),
+                    amount = BigDecimal.valueOf(amount)
+                )
+                showAddSheet = false
+            }
+        )
+    }
+
+    if (showCustomerPicker) {
+        AlertDialog(
+            onDismissRequest = { showCustomerPicker = false },
+            title = { Text("Select Customer") },
+            text = {
+                if (customers.isEmpty()) {
+                    Text("No customers available")
+                } else {
+                    val maxHeight = 300.dp
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = maxHeight)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(customers, key = { it.id }) { customer ->
+                                TextButton(
+                                    onClick = {
+                                        selectedCustomer = customer
+                                        showCustomerPicker = false
+                                        showAddSheet = true
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(customer.name)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCustomerPicker = false }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }

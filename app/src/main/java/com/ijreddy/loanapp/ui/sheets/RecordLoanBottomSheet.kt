@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -22,7 +24,7 @@ fun RecordLoanBottomSheet(
     customerId: String,
     customerName: String,
     onDismiss: () -> Unit,
-    onSave: (originalAmount: Double, interestAmount: Double, paymentDate: String, totalInstallments: Int, checkNumber: String?) -> Unit,
+    onSave: suspend (originalAmount: Double, interestAmount: Double, paymentDate: String, totalInstallments: Int, checkNumber: String?) -> Boolean,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
     var originalAmount by remember { mutableStateOf("") }
@@ -33,6 +35,7 @@ fun RecordLoanBottomSheet(
     var showDatePicker by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     
     val isValid = originalAmount.toDoubleOrNull() != null && 
                   interestAmount.toDoubleOrNull() != null &&
@@ -85,8 +88,9 @@ fun RecordLoanBottomSheet(
             )
             
             // Total display
-            val total = (originalAmount.toDoubleOrNull() ?: 0.0) + (interestAmount.toDoubleOrNull() ?: 0.0)
-            if (total > 0) {
+            val total = (originalAmount.toBigDecimalOrNull() ?: BigDecimal.ZERO)
+                .add(interestAmount.toBigDecimalOrNull() ?: BigDecimal.ZERO)
+            if (total > BigDecimal.ZERO) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
                     shape = MaterialTheme.shapes.small
@@ -99,7 +103,7 @@ fun RecordLoanBottomSheet(
                     ) {
                         Text("Total Amount", style = MaterialTheme.typography.bodyMedium)
                         Text(
-                            "₹ ${String.format("%,.2f", total)}",
+                            "₹ ${total.setScale(2, RoundingMode.HALF_UP)}",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -156,26 +160,46 @@ fun RecordLoanBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                    enabled = !isLoading
-                ) {
-                    Text("Cancel")
-                }
-                
                 Button(
                     onClick = {
                         if (isValid) {
-                            isLoading = true
-                            onSave(
-                                originalAmount.toDouble(),
-                                interestAmount.toDouble(),
-                                paymentDate,
-                                totalInstallments.toInt(),
-                                checkNumber.ifBlank { null }
-                            )
+                            scope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                try {
+                                    val success = onSave(
+                                        originalAmount.toDouble(),
+                                        interestAmount.toDouble(),
+                                        paymentDate,
+                                        totalInstallments.toInt(),
+                                        checkNumber.ifBlank { null }
+                                    )
+                                    if (success) {
+                                        onDismiss()
+                                    } else {
+                                        errorMessage = "Failed to save loan"
+                                    }
+                                } catch (e: Exception) {
+                                    errorMessage = e.message ?: "An error occurred"
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
                         }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = isValid && !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Save Loan")
+                    }
+                }
                     },
                     modifier = Modifier.weight(1f),
                     enabled = isValid && !isLoading

@@ -7,6 +7,7 @@ import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.math.BigDecimal
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,7 +27,7 @@ class SubscriptionRepository @Inject constructor(
     
     // Calculate total daily subscriptions
     val dailyTotal: Flow<Double> = subscriptions.map { list ->
-        list.sumOf { it.amount }
+        list.fold(BigDecimal.ZERO) { acc, sub -> acc.add(BigDecimal.valueOf(sub.amount)) }.toDouble()
     }
     
     /**

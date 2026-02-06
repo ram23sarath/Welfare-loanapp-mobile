@@ -2,9 +2,8 @@ package com.ijreddy.loanapp.ui.loans
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ijreddy.loanapp.data.local.entity.LoanEntity
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
 import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
-import com.ijreddy.loanapp.data.local.dao.LoanDao
 import com.ijreddy.loanapp.data.local.dao.InstallmentDao
 import com.ijreddy.loanapp.data.repository.LoanRepository
 import com.ijreddy.loanapp.data.repository.CustomerRepository
@@ -13,6 +12,7 @@ import com.ijreddy.loanapp.ui.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 /**
@@ -39,6 +39,9 @@ class LoanListViewModel @Inject constructor(
     // Raw streams
     private val rawLoans = loanRepository.loans
     private val customers = customerRepository.customers
+
+    val customerList: StateFlow<List<CustomerEntity>> = customers
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
     // Filtered and sorted loans with customer names
     val loans: StateFlow<List<LoanUiModel>> = combine(
@@ -70,9 +73,11 @@ class LoanListViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
     // Pre-computed totals
-    val totalPrincipal: StateFlow<Double> = rawLoans.map { loanList ->
-        loanList.sumOf { it.principal }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
+    val totalPrincipal: StateFlow<BigDecimal> = rawLoans.map { loanList ->
+        loanList.fold(BigDecimal.ZERO) { acc, loan ->
+            acc.add(BigDecimal.valueOf(loan.principal))
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, BigDecimal.ZERO)
     
     val totalLoans: StateFlow<Int> = rawLoans.map { it.size }
         .stateIn(viewModelScope, SharingStarted.Lazily, 0)
@@ -94,6 +99,40 @@ class LoanListViewModel @Inject constructor(
     
     suspend fun deleteLoan(loanId: String) {
         loanRepository.softDelete(loanId)
+    }
+
+    fun addLoan(
+        customerId: String,
+        principal: BigDecimal,
+        interestAmount: BigDecimal,
+        startDate: String,
+        totalInstallments: Int
+    ) {
+        viewModelScope.launch {
+            val safePrincipal = if (principal > BigDecimal.ZERO) principal else BigDecimal.ZERO
+            val interestRate = if (safePrincipal > BigDecimal.ZERO) {
+                interestAmount
+                    .multiply(BigDecimal.valueOf(100.0))
+                    .divide(safePrincipal, 2, java.math.RoundingMode.HALF_UP)
+            } else {
+                BigDecimal.ZERO
+            }
+            val totalAmount = safePrincipal.add(interestAmount)
+            val installmentAmount = if (totalInstallments > 0) {
+                totalAmount.divide(BigDecimal.valueOf(totalInstallments.toLong()), 2, java.math.RoundingMode.HALF_UP)
+            } else {
+                BigDecimal.ZERO
+            }
+
+            loanRepository.add(
+                customerId = customerId,
+                principal = safePrincipal.toDouble(),
+                interestRate = interestRate.toDouble(),
+                startDate = startDate,
+                tenureMonths = totalInstallments,
+                installmentAmount = installmentAmount.toDouble()
+            )
+        }
     }
 }
 

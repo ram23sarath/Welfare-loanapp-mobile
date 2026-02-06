@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.R
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+import com.ijreddy.loanapp.ui.sheets.RecordLoanBottomSheet
+import java.math.BigDecimal
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +32,12 @@ fun LoanListScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val totalPrincipal by viewModel.totalPrincipal.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val customers by viewModel.customerList.collectAsState()
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
+
+    var showCustomerPicker by remember { mutableStateOf(false) }
+    var selectedCustomer by remember { mutableStateOf<CustomerEntity?>(null) }
+    var showAddLoanSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -34,7 +46,7 @@ fun LoanListScreen(
                     Column {
                         Text(stringResource(R.string.loans))
                         Text(
-                            text = "Total: ₹${String.format("%,.0f", totalPrincipal)}",
+                            text = "Total: ${currencyFormat.format(totalPrincipal)}",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                         )
@@ -54,6 +66,11 @@ fun LoanListScreen(
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showCustomerPicker = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Add Loan")
+            }
         }
     ) { paddingValues ->
         if (isLoading) {
@@ -93,6 +110,57 @@ fun LoanListScreen(
                 }
             }
         }
+    }
+
+    if (showCustomerPicker) {
+        AlertDialog(
+            onDismissRequest = { showCustomerPicker = false },
+            title = { Text("Select Customer") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (customers.isEmpty()) {
+                        Text("No customers available")
+                    } else {
+                        customers.forEach { customer ->
+                            TextButton(
+                                onClick = {
+                                    selectedCustomer = customer
+                                    showCustomerPicker = false
+                                    showAddLoanSheet = true
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(customer.name)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCustomerPicker = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
+    if (showAddLoanSheet && selectedCustomer != null) {
+        RecordLoanBottomSheet(
+            customerId = selectedCustomer?.id.orEmpty(),
+            customerName = selectedCustomer?.name.orEmpty(),
+            onDismiss = { showAddLoanSheet = false },
+            onSave = { originalAmount, interestAmount, paymentDate, totalInstallments, _ ->
+                viewModel.addLoan(
+                    customerId = selectedCustomer?.id.orEmpty(),
+                    principal = BigDecimal.valueOf(originalAmount),
+                    interestAmount = BigDecimal.valueOf(interestAmount),
+                    startDate = paymentDate,
+                    totalInstallments = totalInstallments
+                )
+                showAddLoanSheet = false
+                true
+            }
+        )
     }
 }
 

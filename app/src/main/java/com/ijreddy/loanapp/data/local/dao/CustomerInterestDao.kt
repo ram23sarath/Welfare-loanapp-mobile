@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 interface CustomerInterestDao {
     @Query("SELECT * FROM customer_interest WHERE customer_id = :customerId")
     fun observeByCustomerId(customerId: String): Flow<CustomerInterestEntity?>
+
+    @Query("SELECT * FROM customer_interest")
+    fun getAll(): Flow<List<CustomerInterestEntity>>
     
     @Query("SELECT * FROM customer_interest WHERE customer_id = :customerId")
     suspend fun getByCustomerId(customerId: String): CustomerInterestEntity?

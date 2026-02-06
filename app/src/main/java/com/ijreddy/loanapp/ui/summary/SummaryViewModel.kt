@@ -2,78 +2,102 @@ package com.ijreddy.loanapp.ui.summary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ijreddy.loanapp.data.local.dao.CustomerInterestDao
 import com.ijreddy.loanapp.data.local.dao.DataEntryDao
-import com.ijreddy.loanapp.data.local.entity.DataEntryEntity
-import com.ijreddy.loanapp.data.repository.DataEntryRepository
+import com.ijreddy.loanapp.data.local.dao.InstallmentDao
+import com.ijreddy.loanapp.data.local.dao.LoanDao
+import com.ijreddy.loanapp.data.local.dao.SubscriptionDao
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import java.math.BigDecimal
 import javax.inject.Inject
 
 /**
  * ViewModel for Summary screen.
- * Pre-computes aggregates at load time (P2 optimization).
+ * Aggregates are derived from local data streams.
  */
 @HiltViewModel
 class SummaryViewModel @Inject constructor(
     private val dataEntryDao: DataEntryDao,
-    private val dataEntryRepository: DataEntryRepository
+    private val subscriptionDao: SubscriptionDao,
+    private val loanDao: LoanDao,
+    private val installmentDao: InstallmentDao,
+    private val customerInterestDao: CustomerInterestDao
 ) : ViewModel() {
-    
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
-    // Pre-computed summary (cached, not calculated on every render)
-    private val _summary = MutableStateFlow(Summary())
-    val summary: StateFlow<Summary> = _summary.asStateFlow()
-    
-    // Recent entries for display (limited to 10)
-    val recentCredits: StateFlow<List<DataEntryEntity>> = dataEntryDao.getByType("credit")
-        .map { it.take(10) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    
-    val recentDebits: StateFlow<List<DataEntryEntity>> = dataEntryDao.getByType("debit")
-        .map { it.take(10) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    
-    val recentExpenses: StateFlow<List<DataEntryEntity>> = dataEntryDao.getByType("expense")
-        .map { it.take(10) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    
-    init {
-        loadSummary()
-    }
-    
-    /**
-     * Load summary using SQL aggregates (efficient).
-     */
-    private fun loadSummary() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val (credits, debits, expenses) = dataEntryRepository.getSummary()
-                _summary.value = Summary(
-                    totalCredits = credits,
-                    totalDebits = debits,
-                    totalExpenses = expenses,
-                    netTotal = credits - debits - expenses
-                )
-            } catch (e: Exception) {
-                // Keep default values on error
-            } finally {
-                _isLoading.value = false
+    val summary: StateFlow<SummaryState> = combine(
+        dataEntryDao.getActive(),
+        subscriptionDao.getActive(),
+        loanDao.getActive(),
+        installmentDao.getActive(),
+        customerInterestDao.getAll()
+    ) { entries, subscriptions, loans, installments, interestRecords ->
+        val totalCredits = entries
+            .filter { it.type == "credit" }
+            .sumAmount()
+        val totalDebits = entries
+            .filter { it.type == "debit" }
+            .sumAmount()
+        val totalExpenses = entries
+            .filter { it.type == "expense" }
+            .sumAmount()
+
+        val totalSubscriptions = subscriptions.sumAmount { it.amount }
+        val totalLoanPrincipal = loans.sumAmount { it.principal }
+        val totalInstallmentsPaid = installments
+            .filter { it.status == "paid" }
+            .sumAmount { it.amount }
+        val loanBalance = totalLoanPrincipal.subtract(totalInstallmentsPaid)
+
+        val totalInterestCharged = interestRecords.sumAmount { it.total_interest_charged }
+
+        val expenseBreakdown = entries
+            .filter { it.type == "expense" }
+            .groupBy { entry -> entry.category?.takeIf { it.isNotBlank() } ?: "Uncategorized" }
+            .map { (label, grouped) ->
+                ExpenseBreakdownItem(label, grouped.sumAmount())
             }
-        }
-    }
-    
-    fun refresh() {
-        loadSummary()
-    }
+            .sortedByDescending { it.amount }
+
+        SummaryState(
+            totalCredits = totalCredits,
+            totalDebits = totalDebits,
+            totalExpenses = totalExpenses,
+            netTotal = totalCredits.subtract(totalDebits).subtract(totalExpenses),
+            totalSubscriptions = totalSubscriptions,
+            totalLoanPrincipal = totalLoanPrincipal,
+            totalInstallmentsPaid = totalInstallmentsPaid,
+            loanBalance = loanBalance,
+            totalInterestCharged = totalInterestCharged,
+            totalEntries = entries.size,
+            expenseBreakdown = expenseBreakdown
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SummaryState())
 }
 
-data class Summary(
-    val totalCredits: Double = 0.0,
-    val totalDebits: Double = 0.0,
-    val totalExpenses: Double = 0.0,
-    val netTotal: Double = 0.0
+data class SummaryState(
+    val totalCredits: BigDecimal = BigDecimal.ZERO,
+    val totalDebits: BigDecimal = BigDecimal.ZERO,
+    val totalExpenses: BigDecimal = BigDecimal.ZERO,
+    val netTotal: BigDecimal = BigDecimal.ZERO,
+    val totalSubscriptions: BigDecimal = BigDecimal.ZERO,
+    val totalLoanPrincipal: BigDecimal = BigDecimal.ZERO,
+    val totalInstallmentsPaid: BigDecimal = BigDecimal.ZERO,
+    val loanBalance: BigDecimal = BigDecimal.ZERO,
+    val totalInterestCharged: BigDecimal = BigDecimal.ZERO,
+    val totalEntries: Int = 0,
+    val expenseBreakdown: List<ExpenseBreakdownItem> = emptyList()
 )
+
+data class ExpenseBreakdownItem(
+    val label: String,
+    val amount: BigDecimal
+)
+
+private fun Iterable<Double>.sumAmount(): BigDecimal =
+    fold(BigDecimal.ZERO) { acc, value -> acc.add(BigDecimal.valueOf(value)) }
+
+private fun <T> Iterable<T>.sumAmount(selector: (T) -> Double): BigDecimal =
+    fold(BigDecimal.ZERO) { acc, item -> acc.add(BigDecimal.valueOf(selector(item))) }

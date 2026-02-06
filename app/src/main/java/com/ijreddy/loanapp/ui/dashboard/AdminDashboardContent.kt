@@ -16,7 +16,9 @@ import androidx.compose.ui.unit.dp
 fun AdminDashboardContent(
     onNavigateToCustomers: () -> Unit,
     onNavigateToLoans: () -> Unit,
-    onNavigateToSummary: () -> Unit
+    onNavigateToSummary: () -> Unit,
+    onNavigateToAddCustomer: () -> Unit,
+    onNavigateToAddRecord: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -52,10 +54,17 @@ fun AdminDashboardContent(
         )
         
         Button(
-            onClick = { /* TODO: Open Add Customer Modal */ },
+            onClick = onNavigateToAddCustomer,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add New Customer")
+        }
+
+        OutlinedButton(
+            onClick = onNavigateToAddRecord,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Record")
         }
         
         OutlinedButton(
