@@ -28,7 +28,7 @@ class LoanDetailViewModel @Inject constructor(
 
     private val loanId: String = checkNotNull(savedStateHandle["loanId"])
 
-    private val loanId: String = checkNotNull(savedStateHandle["loanId"])
+
 
     val loan: StateFlow<LoanUiModel?> = combine(
         repository.getById(loanId),

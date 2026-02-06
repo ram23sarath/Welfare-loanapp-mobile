@@ -31,7 +31,7 @@ class SubscriptionViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
     
-    val searchQuery = _searchQuery.asStateFlow()
+
 
     val subscriptions: StateFlow<List<SubscriptionUiModel>> = combine(
         subscriptionRepository.subscriptions,
