@@ -11,9 +11,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ijreddy.loanapp.ui.auth.LoginScreen
 import com.ijreddy.loanapp.ui.auth.AuthViewModel
+import com.ijreddy.loanapp.ui.customers.CustomerDetailScreen
 import com.ijreddy.loanapp.ui.dashboard.DashboardScreen
+import com.ijreddy.loanapp.ui.data.DataEntriesScreen
 import com.ijreddy.loanapp.ui.loans.LoanListScreen
 import com.ijreddy.loanapp.ui.loans.LoanDetailScreen
+import com.ijreddy.loanapp.ui.subscriptions.SubscriptionListScreen
+import com.ijreddy.loanapp.ui.summary.SummaryScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -103,12 +107,44 @@ fun LoanAppNavigation(
 
         // TODO: Add remaining screens:
         // - CustomerListScreen (admin only)
-        // - CustomerDetailScreen
-        // - SubscriptionListScreen
         // - LoanSeniorityScreen  
-        // - SummaryScreen
-        // - DataScreen
         // - TrashScreen (admin only)
         // - AddRecordScreen (admin only)
+        
+        // Customer Detail
+        composable(
+            route = Screen.CustomerDetail.route,
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: return@composable
+            CustomerDetailScreen(
+                customerId = customerId,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLoan = { loanId ->
+                    navController.navigate(Screen.LoanDetail.createRoute(loanId))
+                }
+            )
+        }
+        
+        // Subscriptions
+        composable(Screen.Subscriptions.route) {
+            SubscriptionListScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        // Summary
+        composable(Screen.Summary.route) {
+            SummaryScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        // Data Entries
+        composable(Screen.Data.route) {
+            DataEntriesScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }
