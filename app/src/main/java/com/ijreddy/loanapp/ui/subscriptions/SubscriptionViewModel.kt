@@ -7,6 +7,7 @@ import com.ijreddy.loanapp.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 data class SubscriptionUiModel(
@@ -30,9 +31,7 @@ class SubscriptionViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
     
-import kotlinx.coroutines.flow.combine
-
-// ...
+    val searchQuery = _searchQuery.asStateFlow()
 
     val subscriptions: StateFlow<List<SubscriptionUiModel>> = combine(
         subscriptionRepository.subscriptions,
