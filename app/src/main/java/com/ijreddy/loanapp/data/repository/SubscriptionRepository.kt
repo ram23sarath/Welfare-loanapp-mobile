@@ -3,6 +3,7 @@ package com.ijreddy.loanapp.data.repository
 import com.ijreddy.loanapp.data.local.dao.SubscriptionDao
 import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
 import com.ijreddy.loanapp.data.local.entity.asExternalModel
+import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,9 +15,11 @@ import javax.inject.Singleton
  * Supports offline-first data access and synchronization.
  */
 @Singleton
+@Singleton
 class SubscriptionRepository @Inject constructor(
     private val subscriptionDao: SubscriptionDao,
-    private val postgrest: Postgrest
+    private val postgrest: Postgrest,
+    private val syncManager: SyncManager
 ) {
     // Expose as flow
     val subscriptions: Flow<List<SubscriptionEntity>> = subscriptionDao.observeAll()
@@ -46,13 +49,8 @@ class SubscriptionRepository @Inject constructor(
             // Local insert
             subscriptionDao.insert(entity)
             
-            // Remote sync (simplified for now, ideally queue)
-            try {
-                postgrest.from("subscriptions").insert(entity.asExternalModel())
-                subscriptionDao.insert(entity.copy(sync_status = "synced"))
-            } catch (e: Exception) {
-                // Keep as pending
-            }
+            // Queue for sync
+            syncManager.queueOperation("subscriptions", entity.id, "INSERT", entity.asExternalModel())
             
             Result.success(entity)
         } catch (e: Exception) {
@@ -63,7 +61,7 @@ class SubscriptionRepository @Inject constructor(
     suspend fun softDelete(id: String): Result<Unit> {
         return try {
             subscriptionDao.delete(id)
-            // Queue for sync...
+            syncManager.queueOperation<Any?>("subscriptions", id, "DELETE", null)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

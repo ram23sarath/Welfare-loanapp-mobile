@@ -2,6 +2,7 @@ package com.ijreddy.loanapp.data.repository
 
 import com.ijreddy.loanapp.data.local.dao.DataEntryDao
 import com.ijreddy.loanapp.data.local.entity.DataEntryEntity
+import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
@@ -16,7 +17,8 @@ import javax.inject.Singleton
 class DataEntryRepository @Inject constructor(
     private val dataEntryDao: DataEntryDao,
     private val postgrest: Postgrest,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncManager: SyncManager
 ) {
     val entries: Flow<List<DataEntryEntity>> = dataEntryDao.getActive()
     val deletedEntries: Flow<List<DataEntryEntity>> = dataEntryDao.getDeleted()
@@ -31,8 +33,9 @@ class DataEntryRepository @Inject constructor(
     }
     
     suspend fun add(
-        type: String,
+        customerId: String?,
         amount: Double,
+        type: String,
         description: String,
         date: String,
         category: String? = null
@@ -40,6 +43,7 @@ class DataEntryRepository @Inject constructor(
         return try {
             val entry = DataEntryEntity(
                 id = UUID.randomUUID().toString(),
+                customer_id = customerId,
                 type = type,
                 amount = amount,
                 description = description,
@@ -49,7 +53,7 @@ class DataEntryRepository @Inject constructor(
             )
             
             dataEntryDao.insert(entry)
-            postgrest.from("data_entries").insert(entry)
+            syncManager.queueOperation("data_entries", entry.id, "INSERT", entry)
             
             Result.success(entry)
         } catch (e: Exception) {
@@ -67,7 +71,7 @@ class DataEntryRepository @Inject constructor(
             )
             
             dataEntryDao.update(updated)
-            postgrest.from("data_entries").update(updates) { filter { eq("id", id) } }
+            syncManager.queueOperation("data_entries", id, "UPDATE", updates)
             
             Result.success(updated)
         } catch (e: Exception) {
@@ -81,11 +85,12 @@ class DataEntryRepository @Inject constructor(
             val userId = authRepository.getCurrentUserId() ?: "unknown"
             dataEntryDao.softDelete(id, now, userId)
             
-            postgrest.from("data_entries").update({
-                set("is_deleted", true)
-                set("deleted_at", now)
-                set("deleted_by", userId)
-            }) { filter { eq("id", id) } }
+            val payload = mapOf(
+                "is_deleted" to true,
+                "deleted_at" to now,
+                "deleted_by" to userId
+            )
+            syncManager.queueOperation("data_entries", id, "UPDATE", payload)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -96,11 +101,14 @@ class DataEntryRepository @Inject constructor(
     suspend fun restore(id: String): Result<Unit> {
         return try {
             dataEntryDao.restore(id)
-            postgrest.from("data_entries").update({
-                set("is_deleted", false)
-                set("deleted_at", null as String?)
-                set("deleted_by", null as String?)
-            }) { filter { eq("id", id) } }
+            
+            val payload = mapOf(
+                "is_deleted" to false,
+                "deleted_at" to null,
+                "deleted_by" to null
+            )
+            syncManager.queueOperation("data_entries", id, "UPDATE", payload)
+            
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -110,7 +118,7 @@ class DataEntryRepository @Inject constructor(
     suspend fun permanentDelete(id: String): Result<Unit> {
         return try {
             dataEntryDao.permanentDelete(id)
-            postgrest.from("data_entries").delete { filter { eq("id", id) } }
+            syncManager.queueOperation<Any?>("data_entries", id, "DELETE", null)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

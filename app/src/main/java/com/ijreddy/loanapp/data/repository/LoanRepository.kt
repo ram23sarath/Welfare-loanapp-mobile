@@ -2,6 +2,7 @@ package com.ijreddy.loanapp.data.repository
 
 import com.ijreddy.loanapp.data.local.dao.LoanDao
 import com.ijreddy.loanapp.data.local.entity.LoanEntity
+import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
@@ -16,7 +17,8 @@ import javax.inject.Singleton
 class LoanRepository @Inject constructor(
     private val loanDao: LoanDao,
     private val postgrest: Postgrest,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncManager: SyncManager
 ) {
     val loans: Flow<List<LoanEntity>> = loanDao.getActive()
     val deletedLoans: Flow<List<LoanEntity>> = loanDao.getDeleted()
@@ -47,7 +49,7 @@ class LoanRepository @Inject constructor(
             )
             
             loanDao.insert(loan)
-            postgrest.from("loans").insert(loan)
+            syncManager.queueOperation("loans", loan.id, "INSERT", loan)
             
             Result.success(loan)
         } catch (e: Exception) {
@@ -65,7 +67,7 @@ class LoanRepository @Inject constructor(
             )
             
             loanDao.update(updated)
-            postgrest.from("loans").update(updates) { filter { eq("id", id) } }
+            syncManager.queueOperation("loans", id, "UPDATE", updates)
             
             Result.success(updated)
         } catch (e: Exception) {
@@ -79,11 +81,13 @@ class LoanRepository @Inject constructor(
             val userId = authRepository.getCurrentUserId() ?: "unknown"
             
             loanDao.softDelete(id, now, userId)
-            postgrest.from("loans").update({
-                set("is_deleted", true)
-                set("deleted_at", now)
-                set("deleted_by", userId)
-            }) { filter { eq("id", id) } }
+            
+            val payload = mapOf(
+                "is_deleted" to true,
+                "deleted_at" to now,
+                "deleted_by" to userId
+            )
+            syncManager.queueOperation("loans", id, "UPDATE", payload)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -94,11 +98,13 @@ class LoanRepository @Inject constructor(
     suspend fun restore(id: String): Result<Unit> {
         return try {
             loanDao.restore(id)
-            postgrest.from("loans").update({
-                set("is_deleted", false)
-                set("deleted_at", null as String?)
-                set("deleted_by", null as String?)
-            }) { filter { eq("id", id) } }
+            
+            val payload = mapOf(
+                "is_deleted" to false,
+                "deleted_at" to null,
+                "deleted_by" to null
+            )
+            syncManager.queueOperation("loans", id, "UPDATE", payload)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -109,7 +115,7 @@ class LoanRepository @Inject constructor(
     suspend fun permanentDelete(id: String): Result<Unit> {
         return try {
             loanDao.permanentDelete(id)
-            postgrest.from("loans").delete { filter { eq("id", id) } }
+            syncManager.queueOperation<Any?>("loans", id, "DELETE", null)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -117,9 +123,6 @@ class LoanRepository @Inject constructor(
     }
     
     suspend fun syncFromRemote() {
-        try {
-            val remote = postgrest.from("loans").select().decodeList<LoanEntity>()
-            loanDao.upsertAll(remote)
-        } catch (e: Exception) { /* Log error */ }
+        syncManager.refreshAll()
     }
 }

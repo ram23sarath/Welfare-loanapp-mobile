@@ -2,6 +2,7 @@ package com.ijreddy.loanapp.data.repository
 
 import com.ijreddy.loanapp.data.local.dao.CustomerDao
 import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 class CustomerRepository @Inject constructor(
     private val customerDao: CustomerDao,
     private val postgrest: Postgrest,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncManager: SyncManager
 ) {
     val customers: Flow<List<CustomerEntity>> = customerDao.getActive()
     val deletedCustomers: Flow<List<CustomerEntity>> = customerDao.getDeleted()
@@ -36,8 +38,8 @@ class CustomerRepository @Inject constructor(
             // Insert locally first
             customerDao.insert(customer)
             
-            // Sync to Supabase
-            postgrest.from("customers").insert(customer)
+            // Queue for sync
+            syncManager.queueOperation("customers", customer.id, "INSERT", customer)
             
             Result.success(customer)
         } catch (e: Exception) {
@@ -55,11 +57,13 @@ class CustomerRepository @Inject constructor(
             
             customerDao.update(updated)
             
-            postgrest.from("customers").update({
-                if (name != null) set("name", name)
-                if (phone != null) set("phone", phone)
-            }) {
-                filter { eq("id", id) }
+            val payload = buildMap {
+                if (name != null) put("name", name)
+                if (phone != null) put("phone", phone)
+            }
+            
+            if (payload.isNotEmpty()) {
+                syncManager.queueOperation("customers", id, "UPDATE", payload)
             }
             
             Result.success(updated)
@@ -75,13 +79,12 @@ class CustomerRepository @Inject constructor(
             
             customerDao.softDelete(id, now, userId)
             
-            postgrest.from("customers").update({
-                set("is_deleted", true)
-                set("deleted_at", now)
-                set("deleted_by", userId)
-            }) {
-                filter { eq("id", id) }
-            }
+            val payload = mapOf(
+                "is_deleted" to true,
+                "deleted_at" to now,
+                "deleted_by" to userId
+            )
+            syncManager.queueOperation("customers", id, "UPDATE", payload)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -93,13 +96,12 @@ class CustomerRepository @Inject constructor(
         return try {
             customerDao.restore(id)
             
-            postgrest.from("customers").update({
-                set("is_deleted", false)
-                set("deleted_at", null as String?)
-                set("deleted_by", null as String?)
-            }) {
-                filter { eq("id", id) }
-            }
+            val payload = mapOf(
+                "is_deleted" to false,
+                "deleted_at" to null,
+                "deleted_by" to null
+            )
+            syncManager.queueOperation("customers", id, "UPDATE", payload)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -110,11 +112,7 @@ class CustomerRepository @Inject constructor(
     suspend fun permanentDelete(id: String): Result<Unit> {
         return try {
             customerDao.permanentDelete(id)
-            
-            postgrest.from("customers").delete {
-                filter { eq("id", id) }
-            }
-            
+            syncManager.queueOperation<Any?>("customers", id, "DELETE", null)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -122,13 +120,6 @@ class CustomerRepository @Inject constructor(
     }
     
     suspend fun syncFromRemote() {
-        try {
-            val remote = postgrest.from("customers")
-                .select()
-                .decodeList<CustomerEntity>()
-            customerDao.upsertAll(remote)
-        } catch (e: Exception) {
-            // Log sync failure, data remains stale
-        }
+        syncManager.refreshAll()
     }
 }
