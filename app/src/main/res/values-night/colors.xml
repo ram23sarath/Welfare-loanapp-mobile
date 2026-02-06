@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme brand colors -->
+    <color name="indigo_600">#FF6366F1</color>
+    <color name="indigo_700">#FF818CF8</color>
+    <color name="indigo_500">#FFA5B4FC</color>
+    <color name="indigo_100">#FF312E81</color>
+    <color name="green_500">#FF34D399</color>
+    <color name="amber_500">#FFFBBF24</color>
+    <color name="red_500">#FFF87171</color>
+    <color name="slate_900">#FFF8FAFC</color>
+    <color name="slate_800">#FFE2E8F0</color>
+    <color name="slate_50">#FF0F172A</color>
+    <color name="white">#FF1E293B</color>
+    
+    <!-- Launcher icon (same as light) -->
+    <color name="ic_launcher_background">#FF4F46E5</color>
+    
+    <!-- Splash screen -->
+    <color name="splash_background">#FF312E81</color>
+</resources>

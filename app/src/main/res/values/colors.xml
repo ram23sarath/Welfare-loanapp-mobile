@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Brand colors -->
     <color name="indigo_600">#FF4F46E5</color>
     <color name="indigo_700">#FF4338CA</color>
     <color name="indigo_500">#FF6366F1</color>
@@ -11,4 +12,10 @@
     <color name="slate_800">#FF1E293B</color>
     <color name="slate_50">#FFF8FAFC</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Launcher icon -->
+    <color name="ic_launcher_background">#FF4F46E5</color>
+    
+    <!-- Splash screen -->
+    <color name="splash_background">#FF4F46E5</color>
 </resources>
