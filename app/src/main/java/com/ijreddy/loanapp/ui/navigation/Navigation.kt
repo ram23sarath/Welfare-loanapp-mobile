@@ -75,6 +75,7 @@ fun LoanAppNavigation(
                 onNavigateToSubscriptions = { navController.navigate(Screen.Subscriptions.route) },
                 onNavigateToSeniority = { navController.navigate(Screen.LoanSeniority.route) },
                 onNavigateToSummary = { navController.navigate(Screen.Summary.route) },
+                onNavigateToCustomers = { navController.navigate(Screen.Customers.route) },
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Screen.Login.route) {
