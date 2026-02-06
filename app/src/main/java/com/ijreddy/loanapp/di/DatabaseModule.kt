@@ -52,4 +52,10 @@ object DatabaseModule {
     
     @Provides
     fun providePendingSyncDao(db: LoanAppDatabase): PendingSyncDao = db.pendingSyncDao()
+    
+    @Provides
+    fun provideCustomerInterestDao(db: LoanAppDatabase): CustomerInterestDao = db.customerInterestDao()
+    
+    @Provides
+    fun provideDocumentDao(db: LoanAppDatabase): DocumentDao = db.documentDao()
 }

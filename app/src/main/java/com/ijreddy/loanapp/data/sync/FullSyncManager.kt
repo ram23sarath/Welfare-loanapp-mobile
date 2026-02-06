@@ -29,20 +29,32 @@ class FullSyncManager @Inject constructor(
                 async { fetchSubscriptions() },
                 async { fetchInstallments() },
                 async { fetchDataEntries() },
-                async { fetchLoanSeniority() }
+                async { fetchLoanSeniority() },
+                async { fetchCustomerInterests() },
+                async { fetchDocuments() }
             )
             
             // Phase 2: Upsert in dependency order (customers first)
             db.customerDao().upsertAll(results[0] as List<CustomerEntity>)
             db.loanDao().upsertAll(results[1] as List<LoanEntity>)
+            
             db.subscriptionDao().deleteAll()
             (results[2] as List<SubscriptionEntity>).forEach { db.subscriptionDao().insert(it) }
+            
             db.installmentDao().deleteAll()
             (results[3] as List<InstallmentEntity>).forEach { db.installmentDao().insert(it) }
+            
             db.dataEntryDao().deleteAll()
             (results[4] as List<DataEntryEntity>).forEach { db.dataEntryDao().insert(it) }
+            
             db.seniorityDao().deleteAll()
             (results[5] as List<LoanSeniorityEntity>).forEach { db.seniorityDao().insert(it) }
+            
+            db.customerInterestDao().deleteAll()
+            (results[6] as List<CustomerInterestEntity>).forEach { db.customerInterestDao().insert(it) }
+            
+            db.documentDao().deleteAll()
+            (results[7] as List<DocumentEntity>).forEach { db.documentDao().insert(it) }
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -127,6 +139,18 @@ class FullSyncManager @Inject constructor(
             .decodeList()
     }
     
+    private suspend fun fetchCustomerInterests(): List<CustomerInterestEntity> {
+        return postgrest.from("customer_interest")
+            .select()
+            .decodeList()
+    }
+    
+    private suspend fun fetchDocuments(): List<DocumentEntity> {
+        return postgrest.from("documents")
+            .select()
+            .decodeList()
+    }
+    
     /**
      * Clear all local data (used on logout).
      */
@@ -137,5 +161,7 @@ class FullSyncManager @Inject constructor(
         db.installmentDao().deleteAll()
         db.dataEntryDao().deleteAll()
         db.seniorityDao().deleteAll()
+        db.customerInterestDao().deleteAll()
+        db.documentDao().deleteAll()
     }
 }
