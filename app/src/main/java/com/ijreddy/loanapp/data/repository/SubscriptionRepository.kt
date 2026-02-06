@@ -2,7 +2,7 @@ package com.ijreddy.loanapp.data.repository
 
 import com.ijreddy.loanapp.data.local.dao.SubscriptionDao
 import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
-import com.ijreddy.loanapp.data.local.entity.asExternalModel
+
 import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
