@@ -118,6 +118,8 @@ fun DataEntriesScreen(
                                 onTap = { },
                                 onLongPress = { }
                             )
+                        }
+                    }
                 }
             }
         }
