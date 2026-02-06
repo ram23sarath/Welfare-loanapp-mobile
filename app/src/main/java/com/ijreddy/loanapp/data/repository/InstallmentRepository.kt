@@ -18,10 +18,10 @@ class InstallmentRepository @Inject constructor(
     private val postgrest: Postgrest,
     private val syncManager: SyncManager
 ) {
-    val installments: Flow<List<InstallmentEntity>> = installmentDao.observeAll()
+    val installments: Flow<List<InstallmentEntity>> = installmentDao.getActive()
     
     fun getInstallmentsForLoan(loanId: String): Flow<List<InstallmentEntity>> {
-        return installmentDao.observeByLoanId(loanId)
+        return installmentDao.getByLoanId(loanId)
     }
     
     suspend fun payInstallment(

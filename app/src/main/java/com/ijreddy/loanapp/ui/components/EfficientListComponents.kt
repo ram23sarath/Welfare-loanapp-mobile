@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,14 +109,19 @@ fun PullToRefreshContainer(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
+    val state = rememberPullToRefreshState()
     
-    PullToRefreshBox(
-        state = pullToRefreshState,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        modifier = modifier
-    ) {
+    if (state.isRefreshing) {
+        LaunchedEffect(true) {
+            onRefresh()
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
         content()
+        androidx.compose.material3.pulltorefresh.PullToRefreshContainer(
+            state = state,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }

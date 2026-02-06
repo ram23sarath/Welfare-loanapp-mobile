@@ -22,7 +22,7 @@ import com.ijreddy.loanapp.data.local.entity.*
         DocumentEntity::class
     ],
     version = 3,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class LoanAppDatabase : RoomDatabase() {
     abstract fun customerDao(): CustomerDao

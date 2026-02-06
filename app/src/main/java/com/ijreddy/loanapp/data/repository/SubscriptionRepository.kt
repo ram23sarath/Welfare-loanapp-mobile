@@ -22,7 +22,7 @@ class SubscriptionRepository @Inject constructor(
     private val syncManager: SyncManager
 ) {
     // Expose as flow
-    val subscriptions: Flow<List<SubscriptionEntity>> = subscriptionDao.observeAll()
+    val subscriptions: Flow<List<SubscriptionEntity>> = subscriptionDao.getActive()
     
     // Calculate total daily subscriptions
     val dailyTotal: Flow<Double> = subscriptions.map { list ->
@@ -60,7 +60,7 @@ class SubscriptionRepository @Inject constructor(
     
     suspend fun softDelete(id: String): Result<Unit> {
         return try {
-            subscriptionDao.delete(id)
+            subscriptionDao.permanentDelete(id)
             syncManager.queueOperation<Any?>("subscriptions", id, "DELETE", null)
             Result.success(Unit)
         } catch (e: Exception) {
