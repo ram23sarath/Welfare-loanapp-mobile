@@ -1,0 +1,436 @@
+{
+    "repo_name": "Loan-App",
+    "analyzed_at": "2026-02-06T10:42:25+05:30",
+    "tech_stack": {
+        "frontend": "React 19.2.3 + TypeScript 5.8.2 + Vite 6.2.0",
+        "styling": "TailwindCSS 4.1.17",
+        "state_management": "React Context (DataContext)",
+        "routing": "React Router DOM 7.7.1",
+        "animations": "Framer Motion 12.23.11",
+        "forms": "React Hook Form 7.61.1",
+        "charts": "Chart.js 4.5.0 + react-chartjs-2 5.3.0",
+        "backend": "Supabase (PostgreSQL) via @supabase/supabase-js 2.44.4",
+        "mobile_wrapper": "Expo 54 (WebView-based)",
+        "utilities": [
+            "decimal.js",
+            "xlsx"
+        ]
+    },
+    "database_type": "postgresql",
+    "database_provider": "supabase",
+    "files": [
+        {
+            "path": ".env.example",
+            "type": "config",
+            "size": 489
+        },
+        {
+            "path": ".gitignore",
+            "type": "config",
+            "size": 385
+        },
+        {
+            "path": "LICENSE",
+            "type": "doc",
+            "size": 14474
+        },
+        {
+            "path": "README.md",
+            "type": "doc",
+            "size": 3205
+        },
+        {
+            "path": "QUICKSTART_ENV.md",
+            "type": "doc",
+            "size": 5315
+        },
+        {
+            "path": "app.json",
+            "type": "config",
+            "size": 16
+        },
+        {
+            "path": "eas.json",
+            "type": "config",
+            "size": 344
+        },
+        {
+            "path": "index.html",
+            "type": "entry",
+            "size": 2026
+        },
+        {
+            "path": "metadata.json",
+            "type": "config",
+            "size": 260
+        },
+        {
+            "path": "netlify.toml",
+            "type": "config",
+            "size": 419
+        },
+        {
+            "path": "package.json",
+            "type": "config",
+            "size": 1067
+        },
+        {
+            "path": "postcss.config.js",
+            "type": "config",
+            "size": 97
+        },
+        {
+            "path": "tailwind.config.js",
+            "type": "config",
+            "size": 847
+        },
+        {
+            "path": "tsconfig.json",
+            "type": "config",
+            "size": 602
+        },
+        {
+            "path": "vite.config.ts",
+            "type": "config",
+            "size": 661
+        },
+        {
+            "path": "src/App.tsx",
+            "type": "source",
+            "size": 12849
+        },
+        {
+            "path": "src/types.ts",
+            "type": "source",
+            "size": 13846
+        },
+        {
+            "path": "src/index.tsx",
+            "type": "source",
+            "size": 367
+        },
+        {
+            "path": "src/index.css",
+            "type": "style",
+            "size": 13784
+        },
+        {
+            "path": "src/constants.tsx",
+            "type": "source",
+            "size": 9141
+        },
+        {
+            "path": "src/context/DataContext.tsx",
+            "type": "source",
+            "size": 103198,
+            "priority": "high",
+            "note": "Core state management with all CRUD operations"
+        },
+        {
+            "path": "src/context/ThemeContext.tsx",
+            "type": "source",
+            "size": 6274
+        },
+        {
+            "path": "src/lib/supabase.ts",
+            "type": "source",
+            "size": 335
+        },
+        {
+            "path": "src/lib/env.ts",
+            "type": "source",
+            "size": 1003
+        },
+        {
+            "path": "src/components/pages/LoginPage.tsx",
+            "type": "source",
+            "size": 15851,
+            "priority": "high"
+        },
+        {
+            "path": "src/components/pages/CustomerDashboard.tsx",
+            "type": "source",
+            "size": 13126,
+            "priority": "high"
+        },
+        {
+            "path": "src/components/pages/AddCustomerPage.tsx",
+            "type": "source",
+            "size": 5036
+        },
+        {
+            "path": "src/components/pages/AddRecordPage.tsx",
+            "type": "source",
+            "size": 50587
+        },
+        {
+            "path": "src/components/pages/CustomerDetailPage.tsx",
+            "type": "source",
+            "size": 4564
+        },
+        {
+            "path": "src/components/pages/CustomerListPage.tsx",
+            "type": "source",
+            "size": 119440,
+            "priority": "high"
+        },
+        {
+            "path": "src/components/pages/DataPage.tsx",
+            "type": "source",
+            "size": 87066
+        },
+        {
+            "path": "src/components/pages/LoanDetailPage.tsx",
+            "type": "source",
+            "size": 13212
+        },
+        {
+            "path": "src/components/pages/LoanListPage.tsx",
+            "type": "source",
+            "size": 755
+        },
+        {
+            "path": "src/components/pages/LoanSeniorityPage.tsx",
+            "type": "source",
+            "size": 61487
+        },
+        {
+            "path": "src/components/pages/LoanTableView.tsx",
+            "type": "source",
+            "size": 83800
+        },
+        {
+            "path": "src/components/pages/SubscriptionListPage.tsx",
+            "type": "source",
+            "size": 2944
+        },
+        {
+            "path": "src/components/pages/SubscriptionTableView.tsx",
+            "type": "source",
+            "size": 35549
+        },
+        {
+            "path": "src/components/pages/SummaryPage.tsx",
+            "type": "source",
+            "size": 67420
+        },
+        {
+            "path": "src/components/pages/SummaryChart.tsx",
+            "type": "source",
+            "size": 2793
+        },
+        {
+            "path": "src/components/pages/TrashPage.tsx",
+            "type": "source",
+            "size": 40909
+        },
+        {
+            "path": "src/components/modals/CustomerDetailModal.tsx",
+            "type": "source",
+            "size": 88502,
+            "priority": "high"
+        },
+        {
+            "path": "src/components/modals/EditModal.tsx",
+            "type": "source",
+            "size": 30476
+        },
+        {
+            "path": "src/components/modals/RecordLoanModal.tsx",
+            "type": "source",
+            "size": 17340
+        },
+        {
+            "path": "src/components/modals/RecordInstallmentModal.tsx",
+            "type": "source",
+            "size": 15777
+        },
+        {
+            "path": "src/components/modals/FYBreakdownModal.tsx",
+            "type": "source",
+            "size": 16641
+        },
+        {
+            "path": "src/components/modals/PagePickerPopover.tsx",
+            "type": "source",
+            "size": 9136
+        },
+        {
+            "path": "src/components/modals/RecordDataEntryModal.tsx",
+            "type": "source",
+            "size": 8100
+        },
+        {
+            "path": "src/components/modals/ChangePasswordModal.tsx",
+            "type": "source",
+            "size": 7932
+        },
+        {
+            "path": "src/components/modals/RecordSubscriptionModal.tsx",
+            "type": "source",
+            "size": 6152
+        },
+        {
+            "path": "src/components/modals/DeleteConfirmationModal.tsx",
+            "type": "source",
+            "size": 3824
+        },
+        {
+            "path": "src/components/modals/InactivityLogoutModal.tsx",
+            "type": "source",
+            "size": 3528
+        },
+        {
+            "path": "src/components/Sidebar.tsx",
+            "type": "source",
+            "size": 19445
+        },
+        {
+            "path": "src/components/ErrorBoundary.tsx",
+            "type": "source",
+            "size": 1697
+        },
+        {
+            "path": "src/components/SquigglyProgress.tsx",
+            "type": "source",
+            "size": 4099
+        },
+        {
+            "path": "src/components/auth/ProtectedRoute.tsx",
+            "type": "source",
+            "size": 0
+        },
+        {
+            "path": "src/components/ProfileHeader/index.tsx",
+            "type": "source",
+            "size": 0
+        },
+        {
+            "path": "src/utils/dateFormatter.ts",
+            "type": "source",
+            "size": 1061
+        },
+        {
+            "path": "src/utils/loanStatus.ts",
+            "type": "source",
+            "size": 2412
+        },
+        {
+            "path": "src/utils/notificationHelpers.ts",
+            "type": "source",
+            "size": 5522
+        },
+        {
+            "path": "src/utils/numberFormatter.ts",
+            "type": "source",
+            "size": 1084
+        },
+        {
+            "path": "src/utils/summaryCalculations.ts",
+            "type": "source",
+            "size": 4861
+        },
+        {
+            "path": "src/utils/useDebounce.ts",
+            "type": "source",
+            "size": 2661
+        },
+        {
+            "path": "src/utils/useRowDeleteAnimation.ts",
+            "type": "source",
+            "size": 3475
+        },
+        {
+            "path": "src/utils/whatsapp.ts",
+            "type": "source",
+            "size": 3591
+        },
+        {
+            "path": "scripts/quarterly_interest_schema.sql",
+            "type": "sql",
+            "size": 2786,
+            "priority": "high"
+        },
+        {
+            "path": "scripts/quarterly_interest_functions.sql",
+            "type": "sql",
+            "size": 6539,
+            "priority": "high"
+        },
+        {
+            "path": "scripts/quarterly_interest_trigger.sql",
+            "type": "sql",
+            "size": 1610
+        },
+        {
+            "path": "scripts/quarterly_interest_test.sql",
+            "type": "sql",
+            "size": 3787
+        },
+        {
+            "path": "scripts/run_interest_calculation.sql",
+            "type": "sql",
+            "size": 2019
+        },
+        {
+            "path": "scripts/setup_test_customers.sql",
+            "type": "sql",
+            "size": 4036
+        },
+        {
+            "path": "scripts/cleanup_test_data.sql",
+            "type": "sql",
+            "size": 1580
+        },
+        {
+            "path": "scripts/check_customer_status.sql",
+            "type": "sql",
+            "size": 330
+        },
+        {
+            "path": "Files/db_setup.sql",
+            "type": "sql",
+            "size": 1554
+        },
+        {
+            "path": "Files/update_rls_for_dashboard.sql",
+            "type": "sql",
+            "size": 0
+        },
+        {
+            "path": "loan-app-mobile/app.json",
+            "type": "config",
+            "size": 2087
+        },
+        {
+            "path": "loan-app-mobile/package.json",
+            "type": "config",
+            "size": 1324
+        },
+        {
+            "path": "loan-app-mobile/metro.config.js",
+            "type": "config",
+            "size": 1142
+        },
+        {
+            "path": "loan-app-mobile/babel.config.js",
+            "type": "config",
+            "size": 363
+        }
+    ],
+    "directories": {
+        "src/": "Main web application source",
+        "src/components/": "React components (53 files)",
+        "src/components/pages/": "16 page components",
+        "src/components/modals/": "11 modal components",
+        "src/components/ui/": "8 UI primitives",
+        "src/components/ProfileHeader/": "Profile header with modals",
+        "src/context/": "2 React context providers",
+        "src/lib/": "Supabase client setup",
+        "src/utils/": "8 utility modules",
+        "scripts/": "22 helper scripts and SQL migrations",
+        "loan-app-mobile/": "Expo WebView wrapper (existing)",
+        "public/": "Static assets",
+        "Files/": "SQL and documentation files"
+    }
+}

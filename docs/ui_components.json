@@ -1,0 +1,557 @@
+{
+    "framework": "react",
+    "ui_library": "tailwindcss",
+    "animation_library": "framer-motion",
+    "form_library": "react-hook-form",
+    "routing": "react-router-dom",
+    "screens": [
+        {
+            "id": "LoginPage",
+            "path": "src/components/pages/LoginPage.tsx",
+            "type": "screen",
+            "route": "/login",
+            "size_bytes": 15851,
+            "lines": 426,
+            "props": [],
+            "children_count": 8,
+            "android_equivalent": "LoginActivity / LoginScreen (Compose)",
+            "notes": "Email/password form, phone-to-email conversion, animated background. BLOCKING for auth.",
+            "priority": "must-have",
+            "mobile_issues": [
+                "Large animated fire truck SVG",
+                "Scroll-to-login on mobile"
+            ]
+        },
+        {
+            "id": "CustomerDashboard",
+            "path": "src/components/pages/CustomerDashboard.tsx",
+            "type": "screen",
+            "route": "/",
+            "size_bytes": 13126,
+            "lines": 318,
+            "props": [],
+            "children_count": 5,
+            "android_equivalent": "CustomerDashboardFragment / Screen (Compose)",
+            "notes": "Scoped customer view: summary cards, loans, subscriptions, documents download. RequestSeniorityModal.",
+            "priority": "must-have",
+            "data_sources": [
+                "loans",
+                "subscriptions",
+                "seniorityList",
+                "documents"
+            ]
+        },
+        {
+            "id": "AddCustomerPage",
+            "path": "src/components/pages/AddCustomerPage.tsx",
+            "type": "screen",
+            "route": "/",
+            "size_bytes": 5036,
+            "lines": 120,
+            "props": [],
+            "children_count": 3,
+            "android_equivalent": "AddCustomerScreen (Compose with Forms)",
+            "notes": "Admin-only. Form: name, phone, station_name",
+            "priority": "important",
+            "role": "admin-only"
+        },
+        {
+            "id": "CustomerListPage",
+            "path": "src/components/pages/CustomerListPage.tsx",
+            "type": "screen",
+            "route": "/customers",
+            "size_bytes": 119440,
+            "lines": 2800,
+            "props": [],
+            "children_count": 15,
+            "android_equivalent": "CustomerListScreen with LazyColumn/RecyclerView",
+            "notes": "Large component! Search, filter, sort, inline editing, CustomerDetailModal. Needs virtualization.",
+            "priority": "important",
+            "mobile_issues": [
+                "Complex table layout",
+                "Multiple inline actions",
+                "Large data sets"
+            ],
+            "role": "admin-only"
+        },
+        {
+            "id": "LoanListPage",
+            "path": "src/components/pages/LoanListPage.tsx",
+            "type": "screen",
+            "route": "/loans",
+            "size_bytes": 755,
+            "lines": 25,
+            "props": [],
+            "children_count": 1,
+            "android_equivalent": "LoanListScreen",
+            "notes": "Wrapper for LoanTableView",
+            "priority": "must-have"
+        },
+        {
+            "id": "LoanTableView",
+            "path": "src/components/pages/LoanTableView.tsx",
+            "type": "component",
+            "route": null,
+            "size_bytes": 83800,
+            "lines": 2000,
+            "props": [
+                "data",
+                "filters"
+            ],
+            "children_count": 12,
+            "android_equivalent": "LazyColumn with LoanCard items",
+            "notes": "Complex table with sorting, filtering, expandable rows. Needs card-based layout for mobile.",
+            "priority": "must-have",
+            "mobile_issues": [
+                "Wide table columns",
+                "Hover states"
+            ]
+        },
+        {
+            "id": "LoanDetailPage",
+            "path": "src/components/pages/LoanDetailPage.tsx",
+            "type": "screen",
+            "route": "/loans/:id",
+            "size_bytes": 13212,
+            "lines": 350,
+            "props": [],
+            "children_count": 6,
+            "android_equivalent": "LoanDetailScreen with installment list",
+            "notes": "Loan summary, installment history, RecordInstallmentModal",
+            "priority": "must-have"
+        },
+        {
+            "id": "LoanSeniorityPage",
+            "path": "src/components/pages/LoanSeniorityPage.tsx",
+            "type": "screen",
+            "route": "/loan-seniority",
+            "size_bytes": 61487,
+            "lines": 1500,
+            "props": [],
+            "children_count": 10,
+            "android_equivalent": "LoanSeniorityScreen with queue list",
+            "notes": "Seniority queue management, search, add customer. Customer search dropdown.",
+            "priority": "important"
+        },
+        {
+            "id": "SubscriptionListPage",
+            "path": "src/components/pages/SubscriptionListPage.tsx",
+            "type": "screen",
+            "route": "/subscriptions",
+            "size_bytes": 2944,
+            "lines": 75,
+            "props": [],
+            "children_count": 1,
+            "android_equivalent": "SubscriptionListScreen",
+            "notes": "Wrapper for SubscriptionTableView",
+            "priority": "must-have"
+        },
+        {
+            "id": "SubscriptionTableView",
+            "path": "src/components/pages/SubscriptionTableView.tsx",
+            "type": "component",
+            "route": null,
+            "size_bytes": 35549,
+            "lines": 900,
+            "props": [
+                "data"
+            ],
+            "children_count": 8,
+            "android_equivalent": "LazyColumn with SubscriptionCard items",
+            "notes": "Subscription list with filters, RecordSubscriptionModal",
+            "priority": "must-have",
+            "mobile_issues": [
+                "Table layout"
+            ]
+        },
+        {
+            "id": "SummaryPage",
+            "path": "src/components/pages/SummaryPage.tsx",
+            "type": "screen",
+            "route": "/summary",
+            "size_bytes": 67420,
+            "lines": 1700,
+            "props": [],
+            "children_count": 12,
+            "android_equivalent": "SummaryScreen with dashboard cards",
+            "notes": "Financial summary: Net Total, Income, Expenses. Chart.js for visualization. FY breakdown modal.",
+            "priority": "important",
+            "mobile_issues": [
+                "Chart rendering",
+                "Grid layout complexity"
+            ]
+        },
+        {
+            "id": "DataPage",
+            "path": "src/components/pages/DataPage.tsx",
+            "type": "screen",
+            "route": "/data",
+            "size_bytes": 87066,
+            "lines": 2200,
+            "props": [],
+            "children_count": 14,
+            "android_equivalent": "DataEntriesScreen with LazyColumn",
+            "notes": "Credit/Debit/Expense entries. RecordDataEntryModal. Complex filtering.",
+            "priority": "important"
+        },
+        {
+            "id": "TrashPage",
+            "path": "src/components/pages/TrashPage.tsx",
+            "type": "screen",
+            "route": "/trash",
+            "size_bytes": 40909,
+            "lines": 1000,
+            "props": [],
+            "children_count": 8,
+            "android_equivalent": "TrashScreen with tabs for each entity type",
+            "notes": "Soft-deleted items: customers, loans, subscriptions, installments, data_entries. Restore/permanent delete.",
+            "priority": "nice-to-have",
+            "role": "admin-only"
+        },
+        {
+            "id": "AddRecordPage",
+            "path": "src/components/pages/AddRecordPage.tsx",
+            "type": "screen",
+            "route": "/add-record",
+            "size_bytes": 50587,
+            "lines": 1200,
+            "props": [],
+            "children_count": 10,
+            "android_equivalent": "AddRecordScreen with form wizard",
+            "notes": "Multi-step form for loans, subscriptions, installments. Customer selection.",
+            "priority": "important",
+            "role": "admin-only"
+        },
+        {
+            "id": "CustomerDetailPage",
+            "path": "src/components/pages/CustomerDetailPage.tsx",
+            "type": "screen",
+            "route": "/customers/:id",
+            "size_bytes": 4564,
+            "lines": 120,
+            "props": [],
+            "children_count": 2,
+            "android_equivalent": "CustomerDetailScreen",
+            "notes": "Customer profile with linked loans, subscriptions, data entries.",
+            "priority": "important",
+            "role": "admin-only"
+        }
+    ],
+    "modals": [
+        {
+            "id": "CustomerDetailModal",
+            "path": "src/components/modals/CustomerDetailModal.tsx",
+            "type": "modal",
+            "size_bytes": 88502,
+            "lines": 2200,
+            "props": [
+                "customerId",
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "BottomSheetDialogFragment / ModalBottomSheet (Compose)",
+            "notes": "Largest modal! Full customer detail view with tabs. Complex calculation display.",
+            "priority": "must-have"
+        },
+        {
+            "id": "RecordLoanModal",
+            "path": "src/components/modals/RecordLoanModal.tsx",
+            "type": "modal",
+            "size_bytes": 17340,
+            "props": [
+                "customerId",
+                "isOpen",
+                "onClose",
+                "onSuccess"
+            ],
+            "android_equivalent": "BottomSheet with form",
+            "notes": "Loan creation form",
+            "priority": "must-have"
+        },
+        {
+            "id": "RecordInstallmentModal",
+            "path": "src/components/modals/RecordInstallmentModal.tsx",
+            "type": "modal",
+            "size_bytes": 15777,
+            "props": [
+                "loanId",
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "BottomSheet with form",
+            "notes": "Installment payment recording",
+            "priority": "must-have"
+        },
+        {
+            "id": "RecordSubscriptionModal",
+            "path": "src/components/modals/RecordSubscriptionModal.tsx",
+            "type": "modal",
+            "size_bytes": 6152,
+            "props": [
+                "customerId",
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "BottomSheet with form",
+            "notes": "Subscription recording",
+            "priority": "must-have"
+        },
+        {
+            "id": "RecordDataEntryModal",
+            "path": "src/components/modals/RecordDataEntryModal.tsx",
+            "type": "modal",
+            "size_bytes": 8100,
+            "props": [
+                "customerId",
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "BottomSheet with form",
+            "notes": "Credit/Debit/Expense entry",
+            "priority": "important"
+        },
+        {
+            "id": "EditModal",
+            "path": "src/components/modals/EditModal.tsx",
+            "type": "modal",
+            "size_bytes": 30476,
+            "props": [
+                "entityType",
+                "entity",
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "BottomSheet/Dialog with dynamic form",
+            "notes": "Generic edit modal for various entities",
+            "priority": "important"
+        },
+        {
+            "id": "FYBreakdownModal",
+            "path": "src/components/modals/FYBreakdownModal.tsx",
+            "type": "modal",
+            "size_bytes": 16641,
+            "props": [
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "FullScreenDialog",
+            "notes": "Fiscal year breakdown charts",
+            "priority": "nice-to-have"
+        },
+        {
+            "id": "ChangePasswordModal",
+            "path": "src/components/modals/ChangePasswordModal.tsx",
+            "type": "modal",
+            "size_bytes": 7932,
+            "props": [
+                "isOpen",
+                "onClose"
+            ],
+            "android_equivalent": "Dialog with password form",
+            "notes": "Password change form",
+            "priority": "important"
+        },
+        {
+            "id": "DeleteConfirmationModal",
+            "path": "src/components/modals/DeleteConfirmationModal.tsx",
+            "type": "modal",
+            "size_bytes": 3824,
+            "props": [
+                "isOpen",
+                "onClose",
+                "onConfirm",
+                "message"
+            ],
+            "android_equivalent": "AlertDialog",
+            "notes": "Confirmation dialog for deletes",
+            "priority": "must-have"
+        },
+        {
+            "id": "InactivityLogoutModal",
+            "path": "src/components/modals/InactivityLogoutModal.tsx",
+            "type": "modal",
+            "size_bytes": 3528,
+            "props": [
+                "isOpen",
+                "onClose",
+                "onConfirm"
+            ],
+            "android_equivalent": "AlertDialog",
+            "notes": "30-min inactivity warning",
+            "priority": "important"
+        }
+    ],
+    "ui_primitives": [
+        {
+            "id": "GlassCard",
+            "path": "src/components/ui/GlassCard.tsx",
+            "android_equivalent": "Card with glassmorphism modifier"
+        },
+        {
+            "id": "LoadingSpinner",
+            "path": "src/components/ui/LoadingSpinner.tsx",
+            "android_equivalent": "CircularProgressIndicator"
+        },
+        {
+            "id": "Toast",
+            "path": "src/components/ui/Toast.tsx",
+            "android_equivalent": "Snackbar"
+        },
+        {
+            "id": "AlertPopup",
+            "path": "src/components/ui/AlertPopup.tsx",
+            "android_equivalent": "Snackbar/Toast"
+        },
+        {
+            "id": "PageWrapper",
+            "path": "src/components/ui/PageWrapper.tsx",
+            "android_equivalent": "Scaffold"
+        },
+        {
+            "id": "RequestSeniorityModal",
+            "path": "src/components/ui/RequestSeniorityModal.tsx",
+            "android_equivalent": "BottomSheet"
+        }
+    ],
+    "navigation_map": {
+        "routes": [
+            {
+                "path": "/login",
+                "screen": "LoginPage",
+                "auth_required": false
+            },
+            {
+                "path": "/",
+                "screen": "CustomerDashboard OR AddCustomerPage",
+                "auth_required": true,
+                "note": "Scoped users see CustomerDashboard"
+            },
+            {
+                "path": "/customers",
+                "screen": "CustomerListPage",
+                "auth_required": true,
+                "role": "admin"
+            },
+            {
+                "path": "/customers/:id",
+                "screen": "CustomerDetailPage",
+                "auth_required": true,
+                "role": "admin"
+            },
+            {
+                "path": "/loans",
+                "screen": "LoanListPage",
+                "auth_required": true
+            },
+            {
+                "path": "/loans/:id",
+                "screen": "LoanDetailPage",
+                "auth_required": true
+            },
+            {
+                "path": "/loan-seniority",
+                "screen": "LoanSeniorityPage",
+                "auth_required": true
+            },
+            {
+                "path": "/subscriptions",
+                "screen": "SubscriptionListPage",
+                "auth_required": true
+            },
+            {
+                "path": "/summary",
+                "screen": "SummaryPage",
+                "auth_required": true
+            },
+            {
+                "path": "/data",
+                "screen": "DataPage",
+                "auth_required": true
+            },
+            {
+                "path": "/trash",
+                "screen": "TrashPage",
+                "auth_required": true,
+                "role": "admin"
+            },
+            {
+                "path": "/add-record",
+                "screen": "AddRecordPage",
+                "auth_required": true,
+                "role": "admin"
+            }
+        ],
+        "nav_component": "Sidebar.tsx",
+        "android_equivalent": "NavigationDrawer or BottomNavigation"
+    },
+    "user_flows": [
+        {
+            "name": "Customer Login Flow",
+            "priority": "must-have",
+            "steps": [
+                "LoginPage → CustomerDashboard → View Loans/Subscriptions → Request Seniority → Download Documents"
+            ]
+        },
+        {
+            "name": "Admin Login Flow",
+            "priority": "must-have",
+            "steps": [
+                "LoginPage → AddCustomerPage → Sidebar Nav → CustomerList/LoanList/SubscriptionList → Detail Views → Modals"
+            ]
+        },
+        {
+            "name": "Loan Recording Flow",
+            "priority": "must-have",
+            "steps": [
+                "CustomerDetailModal → RecordLoanModal → Confirm → View in LoanList"
+            ]
+        },
+        {
+            "name": "Installment Payment Flow",
+            "priority": "must-have",
+            "steps": [
+                "LoanDetailPage → RecordInstallmentModal → Confirm → Updated installment list"
+            ]
+        }
+    ],
+    "mobile_specific_issues": [
+        {
+            "issue": "Wide data tables",
+            "components": [
+                "LoanTableView",
+                "SubscriptionTableView",
+                "CustomerListPage"
+            ],
+            "solution": "Convert to card-based list with expandable details"
+        },
+        {
+            "issue": "Hover-only interactions",
+            "components": [
+                "All tables with row actions"
+            ],
+            "solution": "Use swipe actions or long-press context menus"
+        },
+        {
+            "issue": "Large modals",
+            "components": [
+                "CustomerDetailModal"
+            ],
+            "solution": "Convert to full-screen navigation with back stack"
+        },
+        {
+            "issue": "Chart.js charts",
+            "components": [
+                "SummaryPage",
+                "SummaryChart"
+            ],
+            "solution": "Use MPAndroidChart or native Compose charts"
+        },
+        {
+            "issue": "Framer Motion animations",
+            "components": [
+                "All pages"
+            ],
+            "solution": "Use Jetpack Compose AnimatedVisibility and animations"
+        }
+    ]
+}

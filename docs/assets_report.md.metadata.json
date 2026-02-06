@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_OTHER",
+  "summary": "Assets report documenting SVG icons from constants.tsx, existing splash/icon assets from Expo mobile wrapper, and recommendations for Android density scaling. Includes conversion commands for vector drawables.",
+  "updatedAt": "2026-02-06T05:18:49.376661300Z"
+}

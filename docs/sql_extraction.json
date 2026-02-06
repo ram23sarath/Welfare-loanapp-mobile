@@ -1,0 +1,796 @@
+{
+    "database_type": "postgresql",
+    "database_provider": "supabase",
+    "connection_config": {
+        "url_env_var": "VITE_SUPABASE_URL",
+        "key_env_var": "VITE_SUPABASE_ANON_KEY",
+        "example_url": "https://your-project-id.supabase.co",
+        "note": "Uses Supabase JS client, not direct SQL connections"
+    },
+    "tables": [
+        {
+            "table_id": "t1",
+            "name": "customers",
+            "path": "src/types.ts",
+            "start_line": 93,
+            "end_line": 118,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "foreign_key": "auth.users"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "station_name",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t2",
+            "name": "loans",
+            "path": "src/types.ts",
+            "start_line": 119,
+            "end_line": 158,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id"
+                },
+                {
+                    "name": "original_amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "interest_amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "payment_date",
+                    "type": "date"
+                },
+                {
+                    "name": "total_instalments",
+                    "type": "integer"
+                },
+                {
+                    "name": "check_number",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t3",
+            "name": "subscriptions",
+            "path": "src/types.ts",
+            "start_line": 159,
+            "end_line": 195,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id"
+                },
+                {
+                    "name": "amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "date",
+                    "type": "date"
+                },
+                {
+                    "name": "receipt",
+                    "type": "string"
+                },
+                {
+                    "name": "late_fee",
+                    "type": "numeric",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t4",
+            "name": "installments",
+            "path": "src/types.ts",
+            "start_line": 277,
+            "end_line": 316,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "loan_id",
+                    "type": "uuid",
+                    "foreign_key": "loans.id"
+                },
+                {
+                    "name": "installment_number",
+                    "type": "integer"
+                },
+                {
+                    "name": "amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "date",
+                    "type": "date"
+                },
+                {
+                    "name": "receipt_number",
+                    "type": "string"
+                },
+                {
+                    "name": "late_fee",
+                    "type": "numeric",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "loans",
+                    "column": "loan_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t5",
+            "name": "data_entries",
+            "path": "src/types.ts",
+            "start_line": 234,
+            "end_line": 276,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id"
+                },
+                {
+                    "name": "date",
+                    "type": "date"
+                },
+                {
+                    "name": "amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "receipt_number",
+                    "type": "string"
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "values": [
+                        "credit",
+                        "debit",
+                        "expense"
+                    ]
+                },
+                {
+                    "name": "notes",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "subtype",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t6",
+            "name": "loan_seniority",
+            "path": "src/types.ts",
+            "start_line": 196,
+            "end_line": 233,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "user_id",
+                    "type": "uuid"
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id"
+                },
+                {
+                    "name": "station_name",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "loan_type",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "loan_request_date",
+                    "type": "date",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "deleted_at",
+                    "type": "timestamptz",
+                    "nullable": true
+                },
+                {
+                    "name": "deleted_by",
+                    "type": "string",
+                    "nullable": true
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "confidence": "high"
+        },
+        {
+            "table_id": "t7",
+            "name": "customer_interest",
+            "path": "src/types.ts",
+            "start_line": 337,
+            "end_line": 364,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id",
+                    "unique": true
+                },
+                {
+                    "name": "total_interest_charged",
+                    "type": "numeric",
+                    "default": 0
+                },
+                {
+                    "name": "last_applied_quarter",
+                    "type": "date",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamptz"
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "one_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "notes": "Tracks quarterly 3% interest per customer",
+            "confidence": "high"
+        },
+        {
+            "table_id": "t8",
+            "name": "documents",
+            "path": "src/types.ts",
+            "start_line": 365,
+            "end_line": 387,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "file_path",
+                    "type": "string"
+                },
+                {
+                    "name": "file_size",
+                    "type": "integer",
+                    "nullable": true
+                },
+                {
+                    "name": "uploaded_by",
+                    "type": "string",
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                }
+            ],
+            "relationships": [],
+            "rls_enabled": true,
+            "notes": "PDF storage for customer-visible documents",
+            "confidence": "high"
+        },
+        {
+            "table_id": "t9",
+            "name": "system_notifications",
+            "path": "Files/db_setup.sql",
+            "start_line": 2,
+            "end_line": 9,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamptz"
+                },
+                {
+                    "name": "type",
+                    "type": "string"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "metadata",
+                    "type": "jsonb",
+                    "nullable": true
+                }
+            ],
+            "relationships": [],
+            "rls_enabled": true,
+            "notes": "Admin-only notifications for seniority requests, overdue alerts",
+            "confidence": "high"
+        },
+        {
+            "table_id": "t10",
+            "name": "interest_ledger",
+            "path": "scripts/quarterly_interest_schema.sql",
+            "start_line": 35,
+            "end_line": 47,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "primary_key": true
+                },
+                {
+                    "name": "customer_id",
+                    "type": "uuid",
+                    "foreign_key": "customers.id"
+                },
+                {
+                    "name": "subscription_total_used",
+                    "type": "numeric"
+                },
+                {
+                    "name": "interest_rate_pct",
+                    "type": "numeric",
+                    "default": 3.0
+                },
+                {
+                    "name": "interest_amount",
+                    "type": "numeric"
+                },
+                {
+                    "name": "period_start",
+                    "type": "date"
+                },
+                {
+                    "name": "period_end",
+                    "type": "date"
+                },
+                {
+                    "name": "applied_at",
+                    "type": "timestamptz"
+                }
+            ],
+            "relationships": [
+                {
+                    "table": "customers",
+                    "column": "customer_id",
+                    "type": "many_to_one"
+                }
+            ],
+            "rls_enabled": true,
+            "notes": "Audit trail for quarterly interest applications",
+            "confidence": "high"
+        }
+    ],
+    "queries": [
+        {
+            "query_id": "q1",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 391,
+            "end_line": 398,
+            "query_snippet": "supabase.from('customers').select('*').is('deleted_at', null).order('created_at', { ascending: false })",
+            "operation": "SELECT",
+            "tables": [
+                "customers"
+            ],
+            "params": [],
+            "notes": "Fetch all active customers for admin view",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q2",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 400,
+            "end_line": 407,
+            "query_snippet": "supabase.from('loans').select('*, customers(name, phone)').is('deleted_at', null).order('created_at', { ascending: false })",
+            "operation": "SELECT",
+            "tables": [
+                "loans",
+                "customers"
+            ],
+            "params": [],
+            "notes": "Fetch active loans with customer join",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q3",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 409,
+            "end_line": 416,
+            "query_snippet": "supabase.from('subscriptions').select('*, customers(name, phone)').is('deleted_at', null)",
+            "operation": "SELECT",
+            "tables": [
+                "subscriptions",
+                "customers"
+            ],
+            "params": [],
+            "notes": "Fetch subscriptions with customer details",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q4",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 418,
+            "end_line": 425,
+            "query_snippet": "supabase.from('installments').select('*').is('deleted_at', null).order('created_at', { ascending: false })",
+            "operation": "SELECT",
+            "tables": [
+                "installments"
+            ],
+            "params": [],
+            "notes": "Fetch all active installments",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q5",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 427,
+            "end_line": 435,
+            "query_snippet": "supabase.from('data_entries').select('*').is('deleted_at', null).order('date', { ascending: false })",
+            "operation": "SELECT",
+            "tables": [
+                "data_entries"
+            ],
+            "params": [],
+            "notes": "Fetch credit/debit/expense entries",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q6",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 493,
+            "end_line": 498,
+            "query_snippet": "supabase.from('loan_seniority').select('*, customers(name, phone)').is('deleted_at', null).order('loan_request_date', { ascending: true })",
+            "operation": "SELECT",
+            "tables": [
+                "loan_seniority",
+                "customers"
+            ],
+            "params": [],
+            "notes": "Fetch seniority queue ordered by request date",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q7",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 712,
+            "end_line": 717,
+            "query_snippet": "supabase.from('loan_seniority').insert([payload]).select().single()",
+            "operation": "INSERT",
+            "tables": [
+                "loan_seniority"
+            ],
+            "params": [
+                "user_id",
+                "customer_id",
+                "station_name?",
+                "loan_type?",
+                "loan_request_date?"
+            ],
+            "notes": "Add customer to seniority list",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q8",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 761,
+            "end_line": 768,
+            "query_snippet": "supabase.from('loan_seniority').update({ deleted_at, deleted_by }).eq('id', id)",
+            "operation": "UPDATE",
+            "tables": [
+                "loan_seniority"
+            ],
+            "params": [
+                "id"
+            ],
+            "notes": "Soft delete seniority entry",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q9",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 883,
+            "end_line": 893,
+            "query_snippet": "supabase.from('customers').insert([{ user_id, name, phone, station_name }]).select().single()",
+            "operation": "INSERT",
+            "tables": [
+                "customers"
+            ],
+            "params": [
+                "user_id",
+                "name",
+                "phone",
+                "station_name?"
+            ],
+            "notes": "Create new customer",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q10",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 951,
+            "end_line": 959,
+            "query_snippet": "supabase.from('loans').insert([loanPayload]).select().single()",
+            "operation": "INSERT",
+            "tables": [
+                "loans"
+            ],
+            "params": [
+                "customer_id",
+                "original_amount",
+                "interest_amount",
+                "payment_date",
+                "total_instalments",
+                "check_number?"
+            ],
+            "notes": "Create new loan",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q11",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 1054,
+            "end_line": 1061,
+            "query_snippet": "supabase.from('installments').insert([payload]).select().single()",
+            "operation": "INSERT",
+            "tables": [
+                "installments"
+            ],
+            "params": [
+                "loan_id",
+                "installment_number",
+                "amount",
+                "date",
+                "receipt_number",
+                "late_fee?"
+            ],
+            "notes": "Record loan installment payment",
+            "confidence": "high"
+        },
+        {
+            "query_id": "q12",
+            "path": "src/context/DataContext.tsx",
+            "start_line": 1120,
+            "end_line": 1131,
+            "query_snippet": "supabase.from('data_entries').insert([payload]).select().single()",
+            "operation": "INSERT",
+            "tables": [
+                "data_entries"
+            ],
+            "params": [
+                "customer_id",
+                "date",
+                "amount",
+                "receipt_number",
+                "type",
+                "notes?",
+                "subtype?"
+            ],
+            "notes": "Create credit/debit/expense entry",
+            "confidence": "high"
+        }
+    ],
+    "stored_procedures": [
+        {
+            "proc_id": "sp1",
+            "name": "apply_quarterly_interest",
+            "path": "scripts/quarterly_interest_functions.sql",
+            "start_line": 1,
+            "notes": "Calculates and applies 3% quarterly interest to customer balances",
+            "confidence": "high"
+        }
+    ],
+    "orm_usage": {
+        "orm_name": "Supabase JS Client",
+        "pattern": "Query builder with typed generics",
+        "note": "All database operations go through supabase.from().select/insert/update/delete pattern"
+    },
+    "soft_delete_pattern": {
+        "enabled": true,
+        "columns": [
+            "deleted_at",
+            "deleted_by"
+        ],
+        "filter": ".is('deleted_at', null)",
+        "affected_tables": [
+            "customers",
+            "loans",
+            "subscriptions",
+            "installments",
+            "data_entries",
+            "loan_seniority"
+        ]
+    }
+}

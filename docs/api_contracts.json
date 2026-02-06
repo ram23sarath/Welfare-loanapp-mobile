@@ -1,0 +1,368 @@
+{
+    "api_type": "supabase_client",
+    "base_url_env": "VITE_SUPABASE_URL",
+    "auth_type": "supabase_auth_with_jwt",
+    "auth_endpoints": [
+        {
+            "endpoint_id": "auth1",
+            "endpoint": "/auth/v1/token?grant_type=password",
+            "method": "POST",
+            "description": "Sign in with email/password",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 1269
+                }
+            ],
+            "request_schema": {
+                "email": "string (required)",
+                "password": "string (required)"
+            },
+            "response_schema": {
+                "access_token": "string",
+                "refresh_token": "string",
+                "expires_at": "number",
+                "user": {
+                    "id": "uuid",
+                    "email": "string",
+                    "user_metadata": "object"
+                }
+            },
+            "auth": "none",
+            "notes": "Phone numbers auto-converted to email format: {phone}@loanapp.local",
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "auth2",
+            "endpoint": "/auth/v1/logout",
+            "method": "POST",
+            "description": "Sign out user",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 1251
+                }
+            ],
+            "request_schema": {},
+            "response_schema": {},
+            "auth": "jwt",
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "auth3",
+            "endpoint": "/auth/v1/user",
+            "method": "GET",
+            "description": "Get current session",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 1486
+                }
+            ],
+            "request_schema": {},
+            "response_schema": {
+                "user": {
+                    "id": "uuid",
+                    "email": "string",
+                    "user_metadata": "object"
+                }
+            },
+            "auth": "jwt",
+            "confidence": "high"
+        }
+    ],
+    "data_endpoints": [
+        {
+            "endpoint_id": "data1",
+            "endpoint": "/rest/v1/customers",
+            "method": "GET",
+            "description": "Fetch customers (RLS filtered)",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 394
+                }
+            ],
+            "request_schema": {
+                "select": "string (columns to fetch)",
+                "deleted_at": "is.null (soft-delete filter)"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "user_id": "uuid",
+                    "name": "string",
+                    "phone": "string",
+                    "station_name": "string|null",
+                    "created_at": "timestamptz"
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data2",
+            "endpoint": "/rest/v1/customers",
+            "method": "POST",
+            "description": "Create new customer",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 884
+                }
+            ],
+            "request_schema": {
+                "user_id": "uuid (required)",
+                "name": "string (required)",
+                "phone": "string (required)",
+                "station_name": "string|null"
+            },
+            "response_schema": {
+                "id": "uuid",
+                "created_at": "timestamptz"
+            },
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data3",
+            "endpoint": "/rest/v1/loans",
+            "method": "GET",
+            "description": "Fetch loans with customer join",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 403
+                }
+            ],
+            "request_schema": {
+                "select": "*, customers(name, phone)",
+                "deleted_at": "is.null"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "customer_id": "uuid",
+                    "original_amount": "numeric",
+                    "interest_amount": "numeric",
+                    "payment_date": "date",
+                    "total_instalments": "integer",
+                    "check_number": "string|null",
+                    "customers": {
+                        "name": "string",
+                        "phone": "string"
+                    }
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data4",
+            "endpoint": "/rest/v1/loans",
+            "method": "POST",
+            "description": "Create new loan",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 952
+                }
+            ],
+            "request_schema": {
+                "customer_id": "uuid (required)",
+                "original_amount": "numeric (required)",
+                "interest_amount": "numeric (required)",
+                "payment_date": "date (required)",
+                "total_instalments": "integer (required)",
+                "check_number": "string|null"
+            },
+            "response_schema": {
+                "id": "uuid"
+            },
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data5",
+            "endpoint": "/rest/v1/subscriptions",
+            "method": "GET",
+            "description": "Fetch subscriptions with customer join",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 412
+                }
+            ],
+            "request_schema": {
+                "select": "*, customers(name, phone)",
+                "deleted_at": "is.null"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "customer_id": "uuid",
+                    "amount": "numeric",
+                    "date": "date",
+                    "receipt": "string",
+                    "late_fee": "numeric|null"
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data6",
+            "endpoint": "/rest/v1/installments",
+            "method": "GET",
+            "description": "Fetch installments",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 421
+                }
+            ],
+            "request_schema": {
+                "select": "*",
+                "deleted_at": "is.null"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "loan_id": "uuid",
+                    "installment_number": "integer",
+                    "amount": "numeric",
+                    "date": "date",
+                    "receipt_number": "string",
+                    "late_fee": "numeric|null"
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data7",
+            "endpoint": "/rest/v1/data_entries",
+            "method": "GET",
+            "description": "Fetch credit/debit/expense entries",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 430
+                }
+            ],
+            "request_schema": {
+                "select": "*",
+                "deleted_at": "is.null"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "customer_id": "uuid",
+                    "date": "date",
+                    "amount": "numeric",
+                    "receipt_number": "string",
+                    "type": "credit|debit|expense",
+                    "notes": "string|null",
+                    "subtype": "string|null"
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data8",
+            "endpoint": "/rest/v1/loan_seniority",
+            "method": "GET",
+            "description": "Fetch loan seniority queue",
+            "path_refs": [
+                {
+                    "path": "src/context/DataContext.tsx",
+                    "start_line": 494
+                }
+            ],
+            "request_schema": {
+                "select": "*, customers(name, phone)",
+                "deleted_at": "is.null",
+                "order": "loan_request_date.asc"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "user_id": "uuid",
+                    "customer_id": "uuid",
+                    "station_name": "string|null",
+                    "loan_type": "string|null",
+                    "loan_request_date": "date|null",
+                    "customers": {
+                        "name": "string",
+                        "phone": "string"
+                    }
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data9",
+            "endpoint": "/rest/v1/documents",
+            "method": "GET",
+            "description": "Fetch PDF documents list",
+            "path_refs": [
+                {
+                    "path": "src/components/pages/CustomerDashboard.tsx",
+                    "start_line": 82
+                }
+            ],
+            "request_schema": {
+                "select": "*",
+                "order": "created_at.desc"
+            },
+            "response_schema": [
+                {
+                    "id": "uuid",
+                    "name": "string",
+                    "file_path": "string",
+                    "file_size": "integer|null",
+                    "uploaded_by": "string|null",
+                    "created_at": "timestamptz"
+                }
+            ],
+            "auth": "jwt",
+            "rls": true,
+            "confidence": "high"
+        },
+        {
+            "endpoint_id": "data10",
+            "endpoint": "/storage/v1/object/public/{bucket}/{path}",
+            "method": "GET",
+            "description": "Download document file",
+            "path_refs": [
+                {
+                    "path": "src/components/pages/CustomerDashboard.tsx",
+                    "start_line": 102
+                }
+            ],
+            "request_schema": {},
+            "response_schema": "binary (PDF file)",
+            "auth": "public_with_signed_url",
+            "notes": "Uses Supabase Storage for PDF file downloads",
+            "confidence": "high"
+        }
+    ],
+    "curl_examples": {
+        "sign_in": "curl -X POST 'https://{project}.supabase.co/auth/v1/token?grant_type=password' -H 'apikey: {anon_key}' -H 'Content-Type: application/json' -d '{\"email\":\"user@example.com\",\"password\":\"secret\"}'",
+        "fetch_customers": "curl 'https://{project}.supabase.co/rest/v1/customers?select=*&deleted_at=is.null' -H 'apikey: {anon_key}' -H 'Authorization: Bearer {jwt}'"
+    },
+    "versioning": {
+        "api_version": "v1",
+        "supabase_js_version": "2.44.4"
+    }
+}

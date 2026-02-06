@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Comprehensive Android migration plan with 12 sections covering repo indexing, SQL extraction, API contracts, UI mapping, mobile-specific needs, assets, auth, state management, offline sync, performance, build setup, and testing. Each section includes actionable developer prompts with input/output specifications.",
+  "updatedAt": "2026-02-06T05:18:49.374811Z"
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">I J Reddy Loan App</string>
+    
+    <!-- Auth -->
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    
+    <!-- Navigation -->
+    <string name="dashboard">Dashboard</string>
+    <string name="customers">Customers</string>
+    <string name="loans">Loans</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="loan_seniority">Loan Seniority</string>
+    <string name="summary">Summary</string>
+    <string name="data_entries">Data Entries</string>
+    <string name="trash">Trash</string>
+    <string name="add_record">Add Record</string>
+    
+    <!-- Actions -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+    <string name="refresh">Refresh</string>
+    
+    <!-- Loans -->
+    <string name="loan_detail">Loan Details</string>
+    <string name="record_installment">Record Installment</string>
+    <string name="original_amount">Original Amount</string>
+    <string name="interest_amount">Interest Amount</string>
+    <string name="total_instalments">Total Instalments</string>
+    <string name="payment_date">Payment Date</string>
+    <string name="check_number">Check Number</string>
+    
+    <!-- Status -->
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="no_data">No data available</string>
+    <string name="success">Success</string>
+</resources>

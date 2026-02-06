@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="indigo_600">#FF4F46E5</color>
+    <color name="indigo_700">#FF4338CA</color>
+    <color name="indigo_500">#FF6366F1</color>
+    <color name="indigo_100">#FFE0E7FF</color>
+    <color name="green_500">#FF10B981</color>
+    <color name="amber_500">#FFF59E0B</color>
+    <color name="red_500">#FFEF4444</color>
+    <color name="slate_900">#FF0F172A</color>
+    <color name="slate_800">#FF1E293B</color>
+    <color name="slate_50">#FFF8FAFC</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
