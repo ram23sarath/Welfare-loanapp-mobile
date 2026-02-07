@@ -52,8 +52,8 @@ class DashboardViewModelTest {
         )
         every { loanRepository.loans } returns MutableStateFlow(
             listOf(
-                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, Instant.now().toString()),
-                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, Instant.now().toString())
+                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, created_at = Instant.now().toString()),
+                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, created_at = Instant.now().toString())
             )
         )
         every { subscriptionRepository.subscriptions } returns MutableStateFlow(emptyList())
@@ -83,8 +83,8 @@ class DashboardViewModelTest {
         every { customerRepository.customers } returns MutableStateFlow(emptyList())
         every { loanRepository.loans } returns MutableStateFlow(
             listOf(
-                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, Instant.now().toString()),
-                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, Instant.now().toString())
+                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, created_at = Instant.now().toString()),
+                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, created_at = Instant.now().toString())
             )
         )
         every { subscriptionRepository.subscriptions } returns MutableStateFlow(

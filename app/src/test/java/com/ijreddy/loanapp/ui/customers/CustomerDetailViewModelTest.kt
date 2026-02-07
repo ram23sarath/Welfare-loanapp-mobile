@@ -52,7 +52,7 @@ class CustomerDetailViewModelTest {
         coEvery { customerRepository.getById("c1") } returns customer
         every { loanRepository.getByCustomerId("c1") } returns flowOf(
             listOf(
-                LoanEntity("l1", "c1", 10000.0, 2.0, "2024-01-01", 12, 900.0, Instant.now().toString())
+                LoanEntity("l1", "c1", 10000.0, 2.0, "2024-01-01", 12, 900.0, created_at = Instant.now().toString())
             )
         )
         every { subscriptionRepository.getByCustomerId("c1") } returns flowOf(
