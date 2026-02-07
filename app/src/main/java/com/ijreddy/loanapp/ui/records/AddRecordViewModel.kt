@@ -158,7 +158,7 @@ class AddRecordViewModel @Inject constructor(
                  // Check if next is within bounds? We need total installments from loan.
                  val loan = _customerLoans.value.find { it.id == loanId }
                  if (loan != null && next <= loan.total_instalments) {
-                      updateInstallmentForm { it.copy(installmentNumber = next) }
+                      updateInstallmentForm(_installmentForm.value.copy(installmentNumber = next))
                  }
              } catch (e: Exception) {
                  // Ignore
@@ -204,7 +204,7 @@ class AddRecordViewModel @Inject constructor(
                 
                 // Auto-select first loan if available
                 if (loans.isNotEmpty()) {
-                    updateInstallmentForm { it.copy(selectedLoanId = loans.first().id) }
+                    updateInstallmentForm(_installmentForm.value.copy(selectedLoanId = loans.first().id))
                 }
             } catch (e: Exception) {
                 // Handle error
