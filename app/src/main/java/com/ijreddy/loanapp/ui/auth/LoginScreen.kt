@@ -102,23 +102,19 @@ fun LoginScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 
-                // Phone/Email Field
+                // Email/Phone Field
                 OutlinedTextField(
                     value = identifier,
                     onValueChange = { 
                         identifier = it
                         errorMessage = null
                     },
-                    label = { Text("Phone Number or Email") },
-                    placeholder = { Text("Enter Phone Number or Email") },
+                    label = { Text("Email or Phone Number") },
+                    placeholder = { Text("Enter your email or phone number") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = if (identifier.all { it.isDigit() }) {
-                            KeyboardType.Phone
-                        } else {
-                            KeyboardType.Email
-                        },
+                        keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(

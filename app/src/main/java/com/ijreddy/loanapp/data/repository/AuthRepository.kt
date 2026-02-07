@@ -78,10 +78,14 @@ class AuthRepository @Inject constructor(
         return try {
             val email = normalizeLoginIdentifier(identifier)
             
+            android.util.Log.d("AuthRepository", "Sign in attempt - Original: '$identifier', Normalized email: '$email'")
+            
             auth.signInWith(Email) {
                 this.email = email
                 this.password = password
             }
+            
+            android.util.Log.d("AuthRepository", "Sign in successful for: $email")
             
             // Store tokens securely
             val session = auth.currentSessionOrNull()
@@ -102,6 +106,7 @@ class AuthRepository @Inject constructor(
             
             Result.success(Unit)
         } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Sign in failed for '$identifier': ${e.message}", e)
             Result.failure(e)
         }
     }

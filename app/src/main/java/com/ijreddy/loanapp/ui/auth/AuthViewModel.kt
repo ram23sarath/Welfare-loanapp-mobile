@@ -108,7 +108,7 @@ class AuthViewModel @Inject constructor(
         
         return when {
             message.contains("Invalid login credentials", ignoreCase = true) ->
-                "Invalid phone number/email or password"
+                "Invalid email or password"
             message.contains("Email not confirmed", ignoreCase = true) ->
                 "Please verify your email address"
             message.contains("network", ignoreCase = true) ->
