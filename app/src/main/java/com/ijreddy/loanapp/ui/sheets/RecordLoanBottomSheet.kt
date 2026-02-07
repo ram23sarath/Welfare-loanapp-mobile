@@ -200,20 +200,7 @@ fun RecordLoanBottomSheet(
                         Text("Save Loan")
                     }
                 }
-                    },
-                    modifier = Modifier.weight(1f),
-                    enabled = isValid && !isLoading
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text("Save Loan")
-                    }
-                }
+
             }
         }
     }
