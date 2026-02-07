@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AddCard
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,7 +58,7 @@ fun AddRecordScreen(
         RecordAction(
             title = "New Data Entry",
             subtitle = "Log credit, debit, or expense",
-            icon = Icons.Default.ReceiptLong,
+            icon = Icons.AutoMirrored.Filled.ReceiptLong,
             onClick = onNavigateToDataEntries
         )
     )
@@ -69,7 +69,7 @@ fun AddRecordScreen(
                 title = { Text("Add Record") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )

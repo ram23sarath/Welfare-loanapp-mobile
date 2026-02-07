@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,7 +40,7 @@ fun LoanDetailScreen(
                 title = { Text(stringResource(R.string.loan_detail)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -115,7 +115,7 @@ fun LoanDetailScreen(
                                 label = stringResource(R.string.interest_amount),
                                 value = currencyFormat.format(interestAmount)
                             )
-                            Divider(modifier = Modifier.padding(vertical = 8.dp))
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                             LoanDetailRow(
                                 label = "Total",
                                 value = currencyFormat.format(totalAmount),
@@ -171,7 +171,7 @@ fun LoanDetailScreen(
                         date = installment.paid_date ?: installment.due_date,
                         status = installment.status.uppercase()
                     )
-                    Divider()
+                    HorizontalDivider()
                 }
             }
         }

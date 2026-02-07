@@ -4,6 +4,7 @@ import com.ijreddy.loanapp.data.local.dao.InstallmentDao
 import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
 import com.ijreddy.loanapp.data.sync.SyncManager
 import io.github.jan.supabase.postgrest.Postgrest
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +21,12 @@ class InstallmentRepositoryTest {
     fun `payInstallment inserts paid installment and queues sync`() = runTest {
         val fakeDao = FakeInstallmentDao()
         val postgrest = mockk<Postgrest>(relaxed = true)
-        val syncManager = mockk<SyncManager>(relaxed = true)
+        val syncManager = mockk<SyncManager>()
+        
+        // Mock the inline reified function - need to use coEvery with any() matchers
+        coEvery { 
+            syncManager.queueOperation(any(), any(), any(), any<InstallmentEntity>()) 
+        } returns Unit
 
         val repository = InstallmentRepository(fakeDao, postgrest, syncManager)
 

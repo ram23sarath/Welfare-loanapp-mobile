@@ -14,12 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.LocalAtm
 import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -67,7 +67,7 @@ fun SummaryScreen(
                 title = { Text("Summary") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -124,21 +124,21 @@ fun SummaryScreen(
                     SummaryCard(
                         title = "Credits",
                         amount = currencyFormat.format(summary.totalCredits),
-                        icon = Icons.Default.TrendingUp,
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
                         color = Color(0xFF10B981),
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
                         title = "Debits",
                         amount = currencyFormat.format(summary.totalDebits),
-                        icon = Icons.Default.TrendingDown,
+                        icon = Icons.AutoMirrored.Filled.TrendingDown,
                         color = Color(0xFFF59E0B),
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
                         title = "Expenses",
                         amount = currencyFormat.format(summary.totalExpenses),
-                        icon = Icons.Default.TrendingDown,
+                        icon = Icons.AutoMirrored.Filled.TrendingDown,
                         color = Color(0xFFEF4444),
                         modifier = Modifier.weight(1f)
                     )
@@ -168,7 +168,7 @@ fun SummaryScreen(
                     SummaryCard(
                         title = "Entries",
                         amount = summary.totalEntries.toString(),
-                        icon = Icons.Default.ReceiptLong,
+                        icon = Icons.AutoMirrored.Filled.ReceiptLong,
                         color = Color(0xFF0EA5E9),
                         modifier = Modifier.weight(1f)
                     )

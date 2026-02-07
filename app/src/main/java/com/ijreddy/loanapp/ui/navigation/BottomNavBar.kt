@@ -1,12 +1,12 @@
 package com.ijreddy.loanapp.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.outlined.Dashboard
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material3.*
@@ -62,8 +62,8 @@ enum class BottomNavItem(
     Loans(
         route = Screen.Loans.route,
         label = "Loans",
-        selectedIcon = Icons.Filled.List,
-        unselectedIcon = Icons.Outlined.List
+        selectedIcon = Icons.AutoMirrored.Filled.List,
+        unselectedIcon = Icons.AutoMirrored.Outlined.List
     ),
     Summary(
         route = Screen.Summary.route,
