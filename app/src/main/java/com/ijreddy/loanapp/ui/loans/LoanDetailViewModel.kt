@@ -57,7 +57,6 @@ class LoanDetailViewModel @Inject constructor(
             installmentRepository.payInstallment(
                 loanId = loanId,
                 amount = amount,
-                installmentNumber = installments.value.size + 1,
                 paidDate = paidDate
             )
         }
