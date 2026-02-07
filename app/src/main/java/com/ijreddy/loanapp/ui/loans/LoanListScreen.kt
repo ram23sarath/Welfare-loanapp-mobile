@@ -192,16 +192,11 @@ fun LoanCard(
                     fontWeight = FontWeight.SemiBold
                 )
                 
-                // Status Badge (Simple text for now)
+                // Display total instalments
                 Text(
-                    text = loan.status.replaceFirstChar { it.uppercase() },
+                    text = "${loan.totalInstalments} EMIs",
                     style = MaterialTheme.typography.labelSmall,
-                    color = when(loan.status) {
-                        "active" -> MaterialTheme.colorScheme.primary
-                        "completed" -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                        "defaulted" -> MaterialTheme.colorScheme.error
-                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             
@@ -212,13 +207,13 @@ fun LoanCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "₹${String.format("%,.0f", loan.principal)}",
+                    text = "₹${String.format("%,.0f", loan.originalAmount)}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = loan.startDate,
+                    text = loan.paymentDate,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -226,3 +221,4 @@ fun LoanCard(
         }
     }
 }
+

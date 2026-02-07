@@ -60,14 +60,14 @@ class LoanListViewModel @Inject constructor(
             .filter { loan ->
                 query.isBlank() || 
                 loan.customerName.contains(query, ignoreCase = true) ||
-                loan.principal.toString().contains(query)
+                loan.originalAmount.toString().contains(query)
             }
             .let { filtered ->
                 when (order) {
                     SortOrder.NEWEST_FIRST -> filtered.sortedByDescending { it.createdAt }
                     SortOrder.OLDEST_FIRST -> filtered.sortedBy { it.createdAt }
-                    SortOrder.AMOUNT_HIGH -> filtered.sortedByDescending { it.principal }
-                    SortOrder.AMOUNT_LOW -> filtered.sortedBy { it.principal }
+                    SortOrder.AMOUNT_HIGH -> filtered.sortedByDescending { it.originalAmount }
+                    SortOrder.AMOUNT_LOW -> filtered.sortedBy { it.originalAmount }
                 }
             }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -75,7 +75,7 @@ class LoanListViewModel @Inject constructor(
     // Pre-computed totals
     val totalPrincipal: StateFlow<BigDecimal> = rawLoans.map { loanList ->
         loanList.fold(BigDecimal.ZERO) { acc, loan ->
-            acc.add(BigDecimal.valueOf(loan.principal))
+            acc.add(BigDecimal.valueOf(loan.original_amount))
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, BigDecimal.ZERO)
     
@@ -110,27 +110,13 @@ class LoanListViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val safePrincipal = if (principal > BigDecimal.ZERO) principal else BigDecimal.ZERO
-            val interestRate = if (safePrincipal > BigDecimal.ZERO) {
-                interestAmount
-                    .multiply(BigDecimal.valueOf(100.0))
-                    .divide(safePrincipal, 2, java.math.RoundingMode.HALF_UP)
-            } else {
-                BigDecimal.ZERO
-            }
-            val totalAmount = safePrincipal.add(interestAmount)
-            val installmentAmount = if (totalInstallments > 0) {
-                totalAmount.divide(BigDecimal.valueOf(totalInstallments.toLong()), 2, java.math.RoundingMode.HALF_UP)
-            } else {
-                BigDecimal.ZERO
-            }
 
             loanRepository.add(
                 customerId = customerId,
-                principal = safePrincipal.toDouble(),
-                interestRate = interestRate.toDouble(),
-                startDate = startDate,
-                tenureMonths = totalInstallments,
-                installmentAmount = installmentAmount.toDouble()
+                originalAmount = safePrincipal.toDouble(),
+                interestAmount = interestAmount.toDouble(),
+                paymentDate = startDate,
+                totalInstalments = totalInstallments
             )
         }
     }
@@ -142,3 +128,4 @@ enum class SortOrder {
     AMOUNT_HIGH,
     AMOUNT_LOW
 }
+
