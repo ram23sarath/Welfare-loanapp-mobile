@@ -72,7 +72,7 @@ class AuthRepository @Inject constructor(
     
     /**
      * Sign in with phone/email and password.
-     * Normalizes phone numbers to email format (e.g., 9876543210 → 9876543210@gmail.com)
+     * Normalizes phone numbers to email format (e.g., 9876543210 → 9876543210@loanapp.local)
      */
     suspend fun signIn(identifier: String, password: String): Result<Unit> {
         return try {
@@ -162,19 +162,19 @@ class AuthRepository @Inject constructor(
     /**
      * Normalize login identifier to email format.
      * Phone numbers (6-15 digits) → digits@loanapp.local
+     * Emails (contains @) → use as-is
      * Usernames without @ → username@loanapp.local
      */
     private fun normalizeLoginIdentifier(value: String): String {
         val v = value.trim()
-        val digits = v.replace(Regex("\\D"), "")
         
         return when {
-            // If it looks like a phone number (6-15 digits only)
-            digits.length in 6..15 && Regex("^\\d{6,15}$").matches(digits) -> "$digits@loanapp.local"
-            // If no @ symbol, append @loanapp.local
-            !v.contains("@") -> "$v@loanapp.local"
-            // Already has @, use as-is
-            else -> v
+            // Already has @, use as-is (it's an email)
+            v.contains("@") -> v
+            // If input is purely digits (phone number)
+            v.all { it.isDigit() } && v.length in 6..15 -> "$v@loanapp.local"
+            // Otherwise treat as username
+            else -> "$v@loanapp.local"
         }
     }
     

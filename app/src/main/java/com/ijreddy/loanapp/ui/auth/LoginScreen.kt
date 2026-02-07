@@ -109,12 +109,16 @@ fun LoginScreen(
                         identifier = it
                         errorMessage = null
                     },
-                    label = { Text("Phone Number") },
-                    placeholder = { Text("Enter Phone Number") },
+                    label = { Text("Phone Number or Email") },
+                    placeholder = { Text("Enter Phone Number or Email") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Phone,
+                        keyboardType = if (identifier.all { it.isDigit() }) {
+                            KeyboardType.Phone
+                        } else {
+                            KeyboardType.Email
+                        },
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
