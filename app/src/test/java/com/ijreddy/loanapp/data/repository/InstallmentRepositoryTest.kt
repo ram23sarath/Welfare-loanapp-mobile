@@ -1,11 +1,16 @@
 package com.ijreddy.loanapp.data.repository
 
 import com.ijreddy.loanapp.data.local.dao.InstallmentDao
+import com.ijreddy.loanapp.data.local.dao.PendingSyncDao
 import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
+import com.ijreddy.loanapp.data.local.entity.PendingSyncEntity
+import com.ijreddy.loanapp.data.sync.FullSyncManager
+import com.ijreddy.loanapp.data.sync.NetworkMonitor
 import com.ijreddy.loanapp.data.sync.SyncManager
+import com.ijreddy.loanapp.data.sync.SyncScheduler
 import io.github.jan.supabase.postgrest.Postgrest
 import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -21,12 +26,18 @@ class InstallmentRepositoryTest {
     fun `payInstallment inserts paid installment and queues sync`() = runTest {
         val fakeDao = FakeInstallmentDao()
         val postgrest = mockk<Postgrest>(relaxed = true)
-        val syncManager = mockk<SyncManager>()
         
-        // Mock the inline reified function - need to use coEvery with any() matchers
-        coEvery { 
-            syncManager.queueOperation(any(), any(), any(), any<InstallmentEntity>()) 
-        } returns Unit
+        // Create real dependencies with mocks for SyncManager
+        val fakePendingSyncDao = FakePendingSyncDao()
+        val networkMonitor = mockk<NetworkMonitor> {
+            every { isOnline } returns flowOf(false)
+            coEvery { isCurrentlyOnline() } returns false
+        }
+        val syncScheduler = mockk<SyncScheduler>(relaxed = true)
+        val fullSyncManager = mockk<FullSyncManager>(relaxed = true)
+        
+        // Create a real SyncManager with fake/mock dependencies
+        val syncManager = SyncManager(fullSyncManager, syncScheduler, fakePendingSyncDao, networkMonitor)
 
         val repository = InstallmentRepository(fakeDao, postgrest, syncManager)
 
@@ -39,7 +50,10 @@ class InstallmentRepositoryTest {
         assertEquals(true, result.isSuccess)
         assertEquals(1, fakeDao.items.size)
         assertEquals("paid", fakeDao.items.first().status)
-        coVerify { syncManager.queueOperation("installments", any(), "INSERT", any<InstallmentEntity>()) }
+        // Verify the sync was queued by checking the fake PendingSyncDao
+        assertEquals(1, fakePendingSyncDao.items.size)
+        assertEquals("installments", fakePendingSyncDao.items.first().table_name)
+        assertEquals("INSERT", fakePendingSyncDao.items.first().operation)
     }
 
     private class FakeInstallmentDao : InstallmentDao {
@@ -72,5 +86,21 @@ class InstallmentRepositoryTest {
         override suspend fun deleteAll() {
             items.clear()
         }
+    }
+
+    private class FakePendingSyncDao : PendingSyncDao {
+        val items = mutableListOf<PendingSyncEntity>()
+
+        override suspend fun insert(entity: PendingSyncEntity) {
+            items.add(entity)
+        }
+        override suspend fun getAllPending(): List<PendingSyncEntity> = items.toList()
+        override suspend fun delete(id: Long) {
+            items.removeAll { it.id == id }
+        }
+        override suspend fun deleteAll() {
+            items.clear()
+        }
+        override fun getPendingCount(): Flow<Int> = flowOf(items.size)
     }
 }
