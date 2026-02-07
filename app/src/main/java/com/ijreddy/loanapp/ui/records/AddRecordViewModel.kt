@@ -213,16 +213,16 @@ class AddRecordViewModel @Inject constructor(
     }
 
     // Form Updates
-    fun updateLoanForm(update: (LoanFormState) -> LoanFormState) {
-        _loanForm.update(update)
+    fun updateLoanForm(newState: LoanFormState) {
+        _loanForm.value = newState
     }
 
-    fun updateSubscriptionForm(update: (SubscriptionFormState) -> SubscriptionFormState) {
-        _subscriptionForm.update(update)
+    fun updateSubscriptionForm(newState: SubscriptionFormState) {
+        _subscriptionForm.value = newState
     }
 
-    fun updateInstallmentForm(update: (InstallmentFormState) -> InstallmentFormState) {
-        _installmentForm.update(update)
+    fun updateInstallmentForm(newState: InstallmentFormState) {
+        _installmentForm.value = newState
     }
 
     fun submit() {
