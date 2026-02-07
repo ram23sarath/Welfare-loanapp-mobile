@@ -32,6 +32,8 @@ class FullSyncManager @Inject constructor(
      */
     suspend fun syncAll(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
+            android.util.Log.d("FullSyncManager", "Starting full data sync from Supabase...")
+            
             // Phase 1: Fetch all tables in parallel
             val results = awaitAll(
                 async { fetchCustomers() },
@@ -43,6 +45,16 @@ class FullSyncManager @Inject constructor(
                 async { fetchCustomerInterests() },
                 async { fetchDocuments() }
             )
+            
+            android.util.Log.d("FullSyncManager", "Fetched data: " +
+                "customers=${(results[0] as List<*>).size}, " +
+                "loans=${(results[1] as List<*>).size}, " +
+                "subscriptions=${(results[2] as List<*>).size}, " +
+                "installments=${(results[3] as List<*>).size}, " +
+                "dataEntries=${(results[4] as List<*>).size}, " +
+                "seniority=${(results[5] as List<*>).size}, " +
+                "interests=${(results[6] as List<*>).size}, " +
+                "documents=${(results[7] as List<*>).size}")
             
             // Phase 2: Upsert in dependency order (customers first)
             db.customerDao().upsertAll(results[0] as List<CustomerEntity>)
@@ -66,8 +78,10 @@ class FullSyncManager @Inject constructor(
             db.documentDao().deleteAll()
             (results[7] as List<DocumentEntity>).forEach { db.documentDao().insert(it) }
             
+            android.util.Log.d("FullSyncManager", "Full data sync completed successfully")
             Result.success(Unit)
         } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Full data sync failed: ${e.message}", e)
             Result.failure(e)
         }
     }

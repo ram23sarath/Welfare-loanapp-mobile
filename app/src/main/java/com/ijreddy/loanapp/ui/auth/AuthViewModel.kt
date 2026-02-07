@@ -3,6 +3,7 @@ package com.ijreddy.loanapp.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ijreddy.loanapp.data.repository.AuthRepository
+import com.ijreddy.loanapp.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     
     // Authentication state
@@ -73,6 +75,15 @@ class AuthViewModel @Inject constructor(
             
             result.fold(
                 onSuccess = {
+                    // Trigger full data sync after successful login
+                    try {
+                        android.util.Log.d("AuthViewModel", "Login successful, triggering data sync...")
+                        sessionManager.onLoginSuccess()
+                        android.util.Log.d("AuthViewModel", "Data sync completed")
+                    } catch (e: Exception) {
+                        android.util.Log.e("AuthViewModel", "Data sync failed: ${e.message}", e)
+                        // Continue anyway - data will sync in background
+                    }
                     _loginSuccess.emit(Unit)
                 },
                 onFailure = { error ->
@@ -90,7 +101,7 @@ class AuthViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             _isLoading.value = true
-            authRepository.signOut()
+            sessionManager.onLogout()
             _isLoading.value = false
         }
     }
