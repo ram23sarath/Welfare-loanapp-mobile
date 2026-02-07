@@ -1,9 +1,19 @@
 package com.ijreddy.loanapp.data.sync
 
 import com.ijreddy.loanapp.data.local.LoanAppDatabase
-import com.ijreddy.loanapp.data.local.entity.*
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+import com.ijreddy.loanapp.data.local.entity.CustomerInterestEntity
+import com.ijreddy.loanapp.data.local.entity.DataEntryEntity
+import com.ijreddy.loanapp.data.local.entity.DocumentEntity
+import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
+import com.ijreddy.loanapp.data.local.entity.LoanEntity
+import com.ijreddy.loanapp.data.local.entity.LoanSeniorityEntity
+import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
 import io.github.jan.supabase.postgrest.Postgrest
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
