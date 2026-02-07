@@ -22,6 +22,9 @@ interface DataEntryDao {
     
     @Query("SELECT * FROM data_entries WHERE type = :type AND is_deleted = 0 ORDER BY date DESC")
     fun getByType(type: String): Flow<List<DataEntryEntity>>
+
+    @Query("SELECT * FROM data_entries WHERE customer_id = :customerId AND is_deleted = 0 ORDER BY date DESC")
+    fun getByCustomerId(customerId: String): Flow<List<DataEntryEntity>>
     
     @Query("SELECT * FROM data_entries WHERE id = :id")
     suspend fun getById(id: String): DataEntryEntity?

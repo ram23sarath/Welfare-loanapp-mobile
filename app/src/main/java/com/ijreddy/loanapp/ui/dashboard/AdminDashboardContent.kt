@@ -5,8 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Dashboard content for Admin users.
@@ -18,8 +21,11 @@ fun AdminDashboardContent(
     onNavigateToLoans: () -> Unit,
     onNavigateToSummary: () -> Unit,
     onNavigateToAddCustomer: () -> Unit,
-    onNavigateToAddRecord: () -> Unit
+    onNavigateToAddRecord: () -> Unit,
+    viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val state by viewModel.adminState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -34,13 +40,13 @@ fun AdminDashboardContent(
         ) {
             AdminStatCard(
                 title = "Active Customers",
-                value = "Loading...", // TODO: Bind to stats
+                value = state.activeCustomers.toString(),
                 modifier = Modifier.weight(1f),
                 onClick = onNavigateToCustomers
             )
             AdminStatCard(
                 title = "Total Loans",
-                value = "Loading...",
+                value = state.totalLoans.toString(),
                 modifier = Modifier.weight(1f),
                 onClick = onNavigateToLoans
             )

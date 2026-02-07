@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.ui.common.DataEntryCard
 import com.ijreddy.loanapp.ui.common.DataEntryType
 import com.ijreddy.loanapp.ui.common.SwipeableListItem
+import com.ijreddy.loanapp.ui.dialogs.SoftDeleteDialog
 import com.ijreddy.loanapp.ui.sheets.RecordDataEntryBottomSheet
 
 /**
@@ -30,6 +31,8 @@ fun DataEntriesScreen(
     val entries by viewModel.entries.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     var showAddSheet by remember { mutableStateOf(false) }
+    var editEntry by remember { mutableStateOf<DataEntryUiModel?>(null) }
+    var deleteEntryId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -103,8 +106,8 @@ fun DataEntriesScreen(
                 } else {
                     items(entries, key = { it.id }) { entry ->
                         SwipeableListItem(
-                            onEdit = { },
-                            onDelete = { }
+                            onEdit = { editEntry = entry },
+                            onDelete = { deleteEntryId = entry.id }
                         ) {
                             DataEntryCard(
                                 customerName = entry.customerName,
@@ -127,10 +130,41 @@ fun DataEntriesScreen(
     if (showAddSheet) {
         RecordDataEntryBottomSheet(
             onDismiss = { showAddSheet = false },
+            title = "New Data Entry",
+            submitLabel = "Save Entry",
             onSave = { amount, date, type, description, category ->
                 viewModel.addDataEntry(amount, date, type, description, category)
                 showAddSheet = false
             }
+        )
+    }
+
+    editEntry?.let { entry ->
+        RecordDataEntryBottomSheet(
+            onDismiss = { editEntry = null },
+            title = "Edit Entry",
+            submitLabel = "Update Entry",
+            initialAmount = entry.amount.toString(),
+            initialDate = entry.date,
+            initialDescription = entry.notes.orEmpty(),
+            initialCategory = entry.subtype.orEmpty(),
+            initialType = entry.type,
+            onSave = { amount, date, type, description, category ->
+                viewModel.updateEntry(entry.id, amount, date, type, description, category)
+                editEntry = null
+            }
+        )
+    }
+
+    deleteEntryId?.let { entryId ->
+        SoftDeleteDialog(
+            isOpen = true,
+            itemName = "Data entry",
+            onConfirm = {
+                viewModel.deleteEntry(entryId)
+                deleteEntryId = null
+            },
+            onDismiss = { deleteEntryId = null }
         )
     }
 }

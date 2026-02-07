@@ -18,13 +18,20 @@ import java.time.format.DateTimeFormatter
 fun RecordDataEntryBottomSheet(
     onDismiss: () -> Unit,
     onSave: (amount: Double, date: String, type: DataEntryType, description: String, category: String?) -> Unit,
+    title: String = "New Data Entry",
+    submitLabel: String = "Save Entry",
+    initialAmount: String = "",
+    initialDate: String = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+    initialDescription: String = "",
+    initialCategory: String = "",
+    initialType: DataEntryType = DataEntryType.EXPENSE,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
-    var amount by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)) }
-    var description by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(DataEntryType.EXPENSE) }
+    var amount by remember { mutableStateOf(initialAmount) }
+    var date by remember { mutableStateOf(initialDate) }
+    var description by remember { mutableStateOf(initialDescription) }
+    var category by remember { mutableStateOf(initialCategory) }
+    var selectedType by remember { mutableStateOf(initialType) }
     var showDatePicker by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -42,7 +49,7 @@ fun RecordDataEntryBottomSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "New Data Entry",
+                text = title,
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -135,7 +142,7 @@ fun RecordDataEntryBottomSheet(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("Save Entry")
+                    Text(submitLabel)
                 }
             }
         }

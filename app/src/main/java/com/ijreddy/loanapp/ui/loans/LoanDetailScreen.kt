@@ -186,7 +186,7 @@ fun LoanDetailScreen(
             suggestedAmount = loan?.installmentAmount ?: 0.0,
             onDismiss = { showRecordInstallmentSheet = false },
             onSave = { amount, date, receipt, lateFee ->
-                // TODO: Call viewModel.recordInstallment(...)
+                viewModel.recordInstallment(amount = amount, paidDate = date)
                 showRecordInstallmentSheet = false
             }
         )

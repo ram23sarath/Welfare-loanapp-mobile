@@ -29,7 +29,9 @@ jobs:
         echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
 
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: |
+        ./gradlew testDebugUnitTest
+        ./gradlew assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4

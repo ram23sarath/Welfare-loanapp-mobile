@@ -24,6 +24,8 @@ class DataEntryRepository @Inject constructor(
     val deletedEntries: Flow<List<DataEntryEntity>> = dataEntryDao.getDeleted()
     
     fun getByType(type: String): Flow<List<DataEntryEntity>> = dataEntryDao.getByType(type)
+
+    fun getByCustomerId(customerId: String): Flow<List<DataEntryEntity>> = dataEntryDao.getByCustomerId(customerId)
     
     suspend fun getSummary(): Triple<Double, Double, Double> {
         val credits = dataEntryDao.getTotalCredits() ?: 0.0
@@ -67,7 +69,9 @@ class DataEntryRepository @Inject constructor(
             val updated = existing.copy(
                 amount = (updates["amount"] as? Double) ?: existing.amount,
                 description = (updates["description"] as? String) ?: existing.description,
-                date = (updates["date"] as? String) ?: existing.date
+                date = (updates["date"] as? String) ?: existing.date,
+                type = (updates["type"] as? String) ?: existing.type,
+                category = (updates["category"] as? String) ?: existing.category
             )
             
             dataEntryDao.update(updated)

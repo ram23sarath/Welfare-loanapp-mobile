@@ -4,9 +4,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 /**
  * Dashboard content for Scoped Customers.
@@ -16,8 +22,12 @@ import androidx.compose.ui.unit.dp
 fun CustomerDashboardContent(
     onNavigateToLoans: () -> Unit,
     onNavigateToSubscriptions: () -> Unit,
-    onNavigateToSeniority: () -> Unit
+    onNavigateToSeniority: () -> Unit,
+    viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val state by viewModel.customerState.collectAsState()
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
+
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -48,7 +58,7 @@ fun CustomerDashboardContent(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "₹ 0.00", // TODO: Bind to real data
+                        text = currencyFormat.format(state.totalOutstanding),
                         style = MaterialTheme.typography.displaySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -60,7 +70,7 @@ fun CustomerDashboardContent(
         item {
             CustomerNavCard(
                 title = "My Loans",
-                subtitle = "View active loans and history",
+                subtitle = "Active loans: ${state.activeLoans}",
                 onClick = onNavigateToLoans
             )
         }
@@ -68,7 +78,7 @@ fun CustomerDashboardContent(
         item {
             CustomerNavCard(
                 title = "Subscriptions",
-                subtitle = "View daily/monthly subscriptions",
+                subtitle = "Active subscriptions: ${state.activeSubscriptions}",
                 onClick = onNavigateToSubscriptions
             )
         }
