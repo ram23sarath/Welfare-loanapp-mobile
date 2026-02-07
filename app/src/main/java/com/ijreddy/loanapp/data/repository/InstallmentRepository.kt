@@ -27,7 +27,6 @@ class InstallmentRepository @Inject constructor(
     suspend fun payInstallment(
         loanId: String,
         amount: Double,
-        installmentNumber: Int,
         paidDate: String
     ): Result<InstallmentEntity> {
         return try {

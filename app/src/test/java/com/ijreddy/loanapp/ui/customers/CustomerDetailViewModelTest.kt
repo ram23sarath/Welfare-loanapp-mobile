@@ -23,6 +23,9 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,6 +85,10 @@ class CustomerDetailViewModelTest {
             dataEntryRepository = dataEntryRepository
         )
 
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -90,5 +97,7 @@ class CustomerDetailViewModelTest {
         assertEquals(1, state.loans.size)
         assertEquals(1, state.subscriptions.size)
         assertEquals(1, state.entries.size)
+        
+        collectJob.cancel()
     }
 }

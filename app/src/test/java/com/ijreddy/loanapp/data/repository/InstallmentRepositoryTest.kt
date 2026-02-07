@@ -27,7 +27,6 @@ class InstallmentRepositoryTest {
         val result = repository.payInstallment(
             loanId = "loan-1",
             amount = 1200.0,
-            installmentNumber = 1,
             paidDate = "2024-02-01"
         )
 
