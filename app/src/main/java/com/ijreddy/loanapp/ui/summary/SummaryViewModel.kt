@@ -55,7 +55,7 @@ class SummaryViewModel @Inject constructor(
 
         val expenseBreakdown = entries
             .filter { it.type == "expense" }
-            .groupBy { entry -> entry.category?.takeIf { it.isNotBlank() } ?: "Uncategorized" }
+            .groupBy { entry -> entry.subtype?.takeIf { it.isNotBlank() } ?: "Uncategorized" }
             .map { (label, grouped) ->
                 ExpenseBreakdownItem(label, grouped.sumAmount { it.amount })
             }

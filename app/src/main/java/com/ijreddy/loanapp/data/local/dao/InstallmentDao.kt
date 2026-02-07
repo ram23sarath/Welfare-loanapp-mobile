@@ -10,26 +10,27 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO for installment operations.
+ * Uses deleted_at IS NULL pattern for soft-delete filtering (matching Supabase).
  */
 @Dao
 interface InstallmentDao {
     
-    @Query("SELECT * FROM installments WHERE is_deleted = 0 ORDER BY due_date ASC")
+    @Query("SELECT * FROM installments WHERE deleted_at IS NULL ORDER BY date ASC")
     fun getActive(): Flow<List<InstallmentEntity>>
     
-    @Query("SELECT * FROM installments WHERE is_deleted = 1 ORDER BY deleted_at DESC")
+    @Query("SELECT * FROM installments WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun getDeleted(): Flow<List<InstallmentEntity>>
     
-    @Query("SELECT * FROM installments WHERE loan_id = :loanId AND is_deleted = 0 ORDER BY due_date ASC")
+    @Query("SELECT * FROM installments WHERE loan_id = :loanId AND deleted_at IS NULL ORDER BY date ASC")
     fun getByLoanId(loanId: String): Flow<List<InstallmentEntity>>
     
     @Query("SELECT * FROM installments WHERE id = :id")
     suspend fun getById(id: String): InstallmentEntity?
     
-    @Query("SELECT * FROM installments WHERE status = 'overdue' AND is_deleted = 0")
+    @Query("SELECT * FROM installments WHERE status = 'overdue' AND deleted_at IS NULL")
     fun getOverdue(): Flow<List<InstallmentEntity>>
     
-    @Query("SELECT * FROM installments WHERE status = 'pending' AND due_date <= :date AND is_deleted = 0")
+    @Query("SELECT * FROM installments WHERE status = 'pending' AND date <= :date AND deleted_at IS NULL")
     suspend fun getPendingBefore(date: String): List<InstallmentEntity>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -41,16 +42,16 @@ interface InstallmentDao {
     @Update
     suspend fun update(installment: InstallmentEntity)
     
-    @Query("UPDATE installments SET status = 'paid', paid_date = :paidDate WHERE id = :id")
-    suspend fun markPaid(id: String, paidDate: String)
+    @Query("UPDATE installments SET status = 'paid' WHERE id = :id")
+    suspend fun markPaid(id: String)
     
-    @Query("UPDATE installments SET status = 'overdue' WHERE status = 'pending' AND due_date < :today AND is_deleted = 0")
+    @Query("UPDATE installments SET status = 'overdue' WHERE status = 'pending' AND date < :today AND deleted_at IS NULL")
     suspend fun markOverdueInstallments(today: String)
     
-    @Query("UPDATE installments SET is_deleted = 1, deleted_at = :now, deleted_by = :userId WHERE id = :id")
+    @Query("UPDATE installments SET deleted_at = :now, deleted_by = :userId WHERE id = :id")
     suspend fun softDelete(id: String, now: String, userId: String)
     
-    @Query("UPDATE installments SET is_deleted = 0, deleted_at = NULL, deleted_by = NULL WHERE id = :id")
+    @Query("UPDATE installments SET deleted_at = NULL, deleted_by = NULL WHERE id = :id")
     suspend fun restore(id: String)
     
     @Query("DELETE FROM installments WHERE id = :id")
@@ -59,3 +60,4 @@ interface InstallmentDao {
     @Query("DELETE FROM installments")
     suspend fun deleteAll()
 }
+

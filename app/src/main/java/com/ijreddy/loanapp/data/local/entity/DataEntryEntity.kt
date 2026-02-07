@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Data entry entity for credits/debits/expenses.
+ * Note: Supabase uses deleted_at = null to indicate active records (soft-delete pattern).
  */
 @Serializable
 @Entity(tableName = "data_entries")
@@ -15,11 +16,12 @@ data class DataEntryEntity(
     val customer_id: String? = null,
     val type: String, // credit, debit, expense
     val amount: Double,
-    val description: String,
     val date: String,
-    val category: String? = null,
-    val created_at: String,
-    val is_deleted: Boolean = false,
+    val receipt_number: String? = null,
+    val notes: String? = null,
+    val subtype: String? = null,
+    val created_at: String? = null,
     val deleted_at: String? = null,
     val deleted_by: String? = null
 )
+

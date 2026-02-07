@@ -10,17 +10,18 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO for subscription operations.
+ * Uses deleted_at IS NULL pattern for soft-delete filtering (matching Supabase).
  */
 @Dao
 interface SubscriptionDao {
     
-    @Query("SELECT * FROM subscriptions WHERE is_deleted = 0 ORDER BY created_at DESC")
+    @Query("SELECT * FROM subscriptions WHERE deleted_at IS NULL ORDER BY date DESC")
     fun getActive(): Flow<List<SubscriptionEntity>>
     
-    @Query("SELECT * FROM subscriptions WHERE is_deleted = 1 ORDER BY deleted_at DESC")
+    @Query("SELECT * FROM subscriptions WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun getDeleted(): Flow<List<SubscriptionEntity>>
     
-    @Query("SELECT * FROM subscriptions WHERE customer_id = :customerId AND is_deleted = 0")
+    @Query("SELECT * FROM subscriptions WHERE customer_id = :customerId AND deleted_at IS NULL")
     fun getByCustomerId(customerId: String): Flow<List<SubscriptionEntity>>
     
     @Query("SELECT * FROM subscriptions WHERE id = :id")
@@ -35,13 +36,10 @@ interface SubscriptionDao {
     @Update
     suspend fun update(subscription: SubscriptionEntity)
     
-    @Query("UPDATE subscriptions SET paid_amount = paid_amount + :amount WHERE id = :id")
-    suspend fun addPayment(id: String, amount: Double)
-    
-    @Query("UPDATE subscriptions SET is_deleted = 1, deleted_at = :now, deleted_by = :userId WHERE id = :id")
+    @Query("UPDATE subscriptions SET deleted_at = :now, deleted_by = :userId WHERE id = :id")
     suspend fun softDelete(id: String, now: String, userId: String)
     
-    @Query("UPDATE subscriptions SET is_deleted = 0, deleted_at = NULL, deleted_by = NULL WHERE id = :id")
+    @Query("UPDATE subscriptions SET deleted_at = NULL, deleted_by = NULL WHERE id = :id")
     suspend fun restore(id: String)
     
     @Query("DELETE FROM subscriptions WHERE id = :id")
@@ -50,3 +48,4 @@ interface SubscriptionDao {
     @Query("DELETE FROM subscriptions")
     suspend fun deleteAll()
 }
+

@@ -10,32 +10,33 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO for data entry (credit/debit/expense) operations.
+ * Uses deleted_at IS NULL pattern for soft-delete filtering (matching Supabase).
  */
 @Dao
 interface DataEntryDao {
     
-    @Query("SELECT * FROM data_entries WHERE is_deleted = 0 ORDER BY date DESC")
+    @Query("SELECT * FROM data_entries WHERE deleted_at IS NULL ORDER BY date DESC")
     fun getActive(): Flow<List<DataEntryEntity>>
     
-    @Query("SELECT * FROM data_entries WHERE is_deleted = 1 ORDER BY deleted_at DESC")
+    @Query("SELECT * FROM data_entries WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun getDeleted(): Flow<List<DataEntryEntity>>
     
-    @Query("SELECT * FROM data_entries WHERE type = :type AND is_deleted = 0 ORDER BY date DESC")
+    @Query("SELECT * FROM data_entries WHERE type = :type AND deleted_at IS NULL ORDER BY date DESC")
     fun getByType(type: String): Flow<List<DataEntryEntity>>
 
-    @Query("SELECT * FROM data_entries WHERE customer_id = :customerId AND is_deleted = 0 ORDER BY date DESC")
+    @Query("SELECT * FROM data_entries WHERE customer_id = :customerId AND deleted_at IS NULL ORDER BY date DESC")
     fun getByCustomerId(customerId: String): Flow<List<DataEntryEntity>>
     
     @Query("SELECT * FROM data_entries WHERE id = :id")
     suspend fun getById(id: String): DataEntryEntity?
     
-    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'credit' AND is_deleted = 0")
+    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'credit' AND deleted_at IS NULL")
     suspend fun getTotalCredits(): Double?
     
-    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'debit' AND is_deleted = 0")
+    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'debit' AND deleted_at IS NULL")
     suspend fun getTotalDebits(): Double?
     
-    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'expense' AND is_deleted = 0")
+    @Query("SELECT SUM(amount) FROM data_entries WHERE type = 'expense' AND deleted_at IS NULL")
     suspend fun getTotalExpenses(): Double?
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -47,10 +48,10 @@ interface DataEntryDao {
     @Update
     suspend fun update(entry: DataEntryEntity)
     
-    @Query("UPDATE data_entries SET is_deleted = 1, deleted_at = :now, deleted_by = :userId WHERE id = :id")
+    @Query("UPDATE data_entries SET deleted_at = :now, deleted_by = :userId WHERE id = :id")
     suspend fun softDelete(id: String, now: String, userId: String)
     
-    @Query("UPDATE data_entries SET is_deleted = 0, deleted_at = NULL, deleted_by = NULL WHERE id = :id")
+    @Query("UPDATE data_entries SET deleted_at = NULL, deleted_by = NULL WHERE id = :id")
     suspend fun restore(id: String)
     
     @Query("DELETE FROM data_entries WHERE id = :id")
@@ -59,3 +60,4 @@ interface DataEntryDao {
     @Query("DELETE FROM data_entries")
     suspend fun deleteAll()
 }
+
