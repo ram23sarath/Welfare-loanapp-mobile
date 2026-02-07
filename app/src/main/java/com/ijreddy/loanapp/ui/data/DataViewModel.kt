@@ -56,8 +56,8 @@ class DataViewModel @Inject constructor(
                     date = entry.date,
                     receiptNumber = entry.id.take(8), // Placeholder if receipt isn't stored
                     type = DataEntryType.valueOf(entry.type.uppercase()),
-                    notes = entry.description,
-                    subtype = entry.category // Mapping category to subtype
+                    notes = entry.notes,
+                    subtype = entry.subtype
                 )
             }
             .sortedByDescending { it.date }
@@ -68,7 +68,7 @@ class DataViewModel @Inject constructor(
         _selectedType.value = type
     }
     
-    fun addDataEntry(amount: Double, date: String, type: DataEntryType, description: String, category: String?) {
+    fun addDataEntry(amount: Double, date: String, type: DataEntryType, notes: String?, subtype: String?) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -77,9 +77,9 @@ class DataViewModel @Inject constructor(
                     customerId = null, // Generic entry
                     amount = amount,
                     type = type.name.lowercase(),
-                    description = description,
+                    notes = notes,
                     date = date,
-                    category = category
+                    subtype = subtype
                 )
             } finally {
                 _isLoading.value = false
@@ -87,7 +87,7 @@ class DataViewModel @Inject constructor(
         }
     }
 
-    fun updateEntry(entryId: String, amount: Double, date: String, type: DataEntryType, description: String, category: String?) {
+    fun updateEntry(entryId: String, amount: Double, date: String, type: DataEntryType, notes: String?, subtype: String?) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -97,8 +97,8 @@ class DataViewModel @Inject constructor(
                         "amount" to amount,
                         "date" to date,
                         "type" to type.name.lowercase(),
-                        "description" to description,
-                        "category" to category
+                        "notes" to notes,
+                        "subtype" to subtype
                     )
                 )
             } finally {

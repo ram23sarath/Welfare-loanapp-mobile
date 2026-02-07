@@ -65,7 +65,7 @@ class SeniorityViewModel @Inject constructor(
                 item.customerName.contains(query, ignoreCase = true) ||
                 item.customerPhone.contains(query)
             }
-            .sortedBy { it.seniority.position }
+            .sortedBy { it.seniority.loan_request_date }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
     fun setSearchQuery(query: String) {

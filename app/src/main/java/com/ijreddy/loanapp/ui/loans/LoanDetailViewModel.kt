@@ -52,12 +52,12 @@ class LoanDetailViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    fun recordInstallment(amount: Double, paidDate: String) {
+    fun recordInstallment(amount: Double, date: String) {
         viewModelScope.launch {
             installmentRepository.payInstallment(
                 loanId = loanId,
                 amount = amount,
-                paidDate = paidDate
+                date = date
             )
         }
     }

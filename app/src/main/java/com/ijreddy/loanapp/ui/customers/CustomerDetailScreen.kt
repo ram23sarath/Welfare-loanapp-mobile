@@ -224,10 +224,10 @@ private fun CustomerLoansTab(
         items(loans, key = { it.id }) { loan ->
             LoanCard(
                 customerName = loan.customerName,
-                originalAmount = loan.principal,
-                interestAmount = (loan.principal * loan.interestRate / 100.0),
-                paymentDate = loan.startDate,
-                totalInstallments = loan.tenureMonths,
+                originalAmount = loan.originalAmount,
+                interestAmount = loan.interestAmount,
+                paymentDate = loan.paymentDate,
+                totalInstallments = loan.totalInstalments,
                 paidInstallments = 0,
                 onTap = { onLoanClick(loan.id) },
                 onLongPress = { /* Show context menu */ }
@@ -249,9 +249,9 @@ private fun CustomerSubscriptionsTab(
             SubscriptionCard(
                 customerName = customerName,
                 amount = sub.amount,
-                date = sub.start_date,
-                receiptNumber = sub.id.take(8),
-                lateFee = null,
+                date = sub.date,
+                receiptNumber = sub.receipt ?: sub.id.take(8),
+                lateFee = sub.late_fee,
                 onTap = { },
                 onLongPress = { }
             )
@@ -270,9 +270,9 @@ private fun CustomerEntriesTab(entries: List<com.ijreddy.loanapp.data.local.enti
                 customerName = null,
                 amount = entry.amount,
                 date = entry.date,
-                receiptNumber = entry.id.take(8),
+                receiptNumber = entry.receipt_number ?: entry.id.take(8),
                 type = DataEntryType.valueOf(entry.type.uppercase()),
-                notes = entry.description,
+                notes = entry.notes,
                 onTap = { },
                 onLongPress = { }
             )

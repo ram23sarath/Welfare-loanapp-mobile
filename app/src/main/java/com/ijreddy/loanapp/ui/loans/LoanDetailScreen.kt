@@ -17,7 +17,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.R
 import com.ijreddy.loanapp.ui.sheets.RecordInstallmentBottomSheet
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -89,11 +88,8 @@ fun LoanDetailScreen(
     
                 // Loan Summary Card
                 item {
-                    val principal = BigDecimal.valueOf(currentLoan.principal)
-                    val interestRate = BigDecimal.valueOf(currentLoan.interestRate)
-                    val interestAmount = principal
-                        .multiply(interestRate)
-                        .divide(BigDecimal.valueOf(100.0), 2, RoundingMode.HALF_UP)
+                    val principal = BigDecimal.valueOf(currentLoan.originalAmount)
+                    val interestAmount = BigDecimal.valueOf(currentLoan.interestAmount)
                     val totalAmount = principal.add(interestAmount)
 
                     Card(
@@ -126,7 +122,7 @@ fun LoanDetailScreen(
                 }
     
                 // Progress Card
-                val totalInstallments = currentLoan.tenureMonths
+                val totalInstallments = currentLoan.totalInstalments
                 val installmentsPaid = installments.size
                 
                 item {
@@ -168,7 +164,7 @@ fun LoanDetailScreen(
                 items(installments) { installment ->
                     InstallmentItem(
                         amount = installment.amount,
-                        date = installment.paid_date ?: installment.due_date,
+                        date = installment.date,
                         status = installment.status.uppercase()
                     )
                     HorizontalDivider()
@@ -183,10 +179,10 @@ fun LoanDetailScreen(
             loanId = loanId,
             customerName = loan?.customerName ?: "",
             installmentNumber = installments.size + 1,
-            suggestedAmount = loan?.installmentAmount ?: 0.0,
+            suggestedAmount = 0.0, // No fixed installment amount in new schema
             onDismiss = { showRecordInstallmentSheet = false },
             onSave = { amount, date, receipt, lateFee ->
-                viewModel.recordInstallment(amount = amount, paidDate = date)
+                viewModel.recordInstallment(amount = amount, date = date)
                 showRecordInstallmentSheet = false
             }
         )

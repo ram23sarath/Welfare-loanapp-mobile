@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 
 data class AdminDashboardState(
@@ -55,10 +54,8 @@ class DashboardViewModel @Inject constructor(
             val customerLoans = loans.filter { it.customer_id == scopedCustomerId }
             val customerSubscriptions = subscriptions.filter { it.customer_id == scopedCustomerId }
             val totalOutstanding = customerLoans.fold(BigDecimal.ZERO) { acc, loan ->
-                val interest = BigDecimal.valueOf(loan.principal)
-                    .multiply(BigDecimal.valueOf(loan.interest_rate))
-                    .divide(BigDecimal.valueOf(100.0), 2, RoundingMode.HALF_UP)
-                acc.add(BigDecimal.valueOf(loan.principal).add(interest))
+                acc.add(BigDecimal.valueOf(loan.original_amount))
+                    .add(BigDecimal.valueOf(loan.interest_amount))
             }
             CustomerDashboardState(
                 totalOutstanding = totalOutstanding.toDouble(),

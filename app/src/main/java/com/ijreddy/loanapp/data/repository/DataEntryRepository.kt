@@ -38,9 +38,10 @@ class DataEntryRepository @Inject constructor(
         customerId: String?,
         amount: Double,
         type: String,
-        description: String,
+        notes: String? = null,
         date: String,
-        category: String? = null
+        subtype: String? = null,
+        receiptNumber: String? = null
     ): Result<DataEntryEntity> {
         return try {
             val entry = DataEntryEntity(
@@ -48,9 +49,10 @@ class DataEntryRepository @Inject constructor(
                 customer_id = customerId,
                 type = type,
                 amount = amount,
-                description = description,
+                notes = notes,
                 date = date,
-                category = category,
+                subtype = subtype,
+                receipt_number = receiptNumber,
                 created_at = Instant.now().toString()
             )
             
@@ -68,10 +70,10 @@ class DataEntryRepository @Inject constructor(
             val existing = dataEntryDao.getById(id) ?: throw Exception("Entry not found")
             val updated = existing.copy(
                 amount = (updates["amount"] as? Double) ?: existing.amount,
-                description = (updates["description"] as? String) ?: existing.description,
+                notes = (updates["notes"] as? String) ?: existing.notes,
                 date = (updates["date"] as? String) ?: existing.date,
                 type = (updates["type"] as? String) ?: existing.type,
-                category = (updates["category"] as? String) ?: existing.category
+                subtype = (updates["subtype"] as? String) ?: existing.subtype
             )
             
             dataEntryDao.update(updated)
@@ -90,7 +92,6 @@ class DataEntryRepository @Inject constructor(
             dataEntryDao.softDelete(id, now, userId)
             
             val payload = mapOf(
-                "is_deleted" to true,
                 "deleted_at" to now,
                 "deleted_by" to userId
             )
@@ -107,7 +108,6 @@ class DataEntryRepository @Inject constructor(
             dataEntryDao.restore(id)
             
             val payload = mapOf(
-                "is_deleted" to false,
                 "deleted_at" to null,
                 "deleted_by" to null
             )
@@ -129,3 +129,4 @@ class DataEntryRepository @Inject constructor(
         }
     }
 }
+

@@ -143,7 +143,7 @@ fun LoanSeniorityScreen(
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Text(
-                                    text = "${item.seniority.position}. ${item.customerName}",
+                                    text = item.customerName,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )

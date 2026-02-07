@@ -34,14 +34,14 @@ class SeniorityRepository @Inject constructor(
                 throw Exception("Customer already in seniority list")
             }
             
-            val maxPosition = seniorityDao.getMaxPosition() ?: 0
+            val userId = authRepository.getCurrentUserId()
             val seniority = LoanSeniorityEntity(
                 id = UUID.randomUUID().toString(),
+                user_id = userId,
                 customer_id = customerId,
                 station_name = stationName,
                 loan_type = loanType,
-                loan_request_date = loanRequestDate,
-                position = maxPosition + 1,
+                loan_request_date = loanRequestDate ?: java.time.LocalDate.now().toString(),
                 created_at = Instant.now().toString()
             )
             
@@ -88,7 +88,6 @@ class SeniorityRepository @Inject constructor(
             
             seniorityDao.softDelete(id, now, userId)
             postgrest.from("loan_seniority").update({
-                set("is_deleted", true)
                 set("deleted_at", now)
                 set("deleted_by", userId)
             }) { filter { eq("id", id) } }
@@ -103,7 +102,6 @@ class SeniorityRepository @Inject constructor(
         return try {
             seniorityDao.restore(id)
             postgrest.from("loan_seniority").update({
-                set("is_deleted", false)
                 set("deleted_at", null as String?)
                 set("deleted_by", null as String?)
             }) { filter { eq("id", id) } }
@@ -123,3 +121,4 @@ class SeniorityRepository @Inject constructor(
         }
     }
 }
+

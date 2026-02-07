@@ -45,9 +45,9 @@ class SubscriptionViewModel @Inject constructor(
                 id = sub.id,
                 customerName = customerMap[sub.customer_id]?.name ?: "Unknown",
                 amount = sub.amount,
-                date = sub.start_date,
-                receiptNumber = "", // Not in entity
-                lateFee = 0.0 // Not in entity
+                date = sub.date,
+                receiptNumber = sub.receipt ?: "",
+                lateFee = sub.late_fee
             )
         }.filter { 
             query.isBlank() || it.customerName.contains(query, ignoreCase = true)

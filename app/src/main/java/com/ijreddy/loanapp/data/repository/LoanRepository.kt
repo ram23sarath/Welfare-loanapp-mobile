@@ -30,21 +30,21 @@ class LoanRepository @Inject constructor(
     
     suspend fun add(
         customerId: String,
-        principal: Double,
-        interestRate: Double,
-        startDate: String,
-        tenureMonths: Int,
-        installmentAmount: Double
+        originalAmount: Double,
+        interestAmount: Double,
+        paymentDate: String,
+        totalInstalments: Int,
+        checkNumber: String? = null
     ): Result<LoanEntity> {
         return try {
             val loan = LoanEntity(
                 id = UUID.randomUUID().toString(),
                 customer_id = customerId,
-                principal = principal,
-                interest_rate = interestRate,
-                start_date = startDate,
-                tenure_months = tenureMonths,
-                installment_amount = installmentAmount,
+                original_amount = originalAmount,
+                interest_amount = interestAmount,
+                payment_date = paymentDate,
+                total_instalments = totalInstalments,
+                check_number = checkNumber,
                 created_at = Instant.now().toString()
             )
             
@@ -61,9 +61,9 @@ class LoanRepository @Inject constructor(
         return try {
             val existing = loanDao.getById(id) ?: throw Exception("Loan not found")
             val updated = existing.copy(
-                principal = (updates["principal"] as? Double) ?: existing.principal,
-                interest_rate = (updates["interest_rate"] as? Double) ?: existing.interest_rate,
-                status = (updates["status"] as? String) ?: existing.status
+                original_amount = (updates["original_amount"] as? Double) ?: existing.original_amount,
+                interest_amount = (updates["interest_amount"] as? Double) ?: existing.interest_amount,
+                check_number = (updates["check_number"] as? String) ?: existing.check_number
             )
             
             loanDao.update(updated)
@@ -83,7 +83,6 @@ class LoanRepository @Inject constructor(
             loanDao.softDelete(id, now, userId)
             
             val payload = mapOf(
-                "is_deleted" to true,
                 "deleted_at" to now,
                 "deleted_by" to userId
             )
@@ -100,7 +99,6 @@ class LoanRepository @Inject constructor(
             loanDao.restore(id)
             
             val payload = mapOf(
-                "is_deleted" to false,
                 "deleted_at" to null,
                 "deleted_by" to null
             )
@@ -126,3 +124,4 @@ class LoanRepository @Inject constructor(
         syncManager.refreshAll()
     }
 }
+

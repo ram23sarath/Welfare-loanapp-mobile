@@ -12,7 +12,6 @@ import javax.inject.Singleton
  * Repository for managing loan installments.
  */
 @Singleton
-
 class InstallmentRepository @Inject constructor(
     private val installmentDao: InstallmentDao,
     private val postgrest: Postgrest,
@@ -27,15 +26,20 @@ class InstallmentRepository @Inject constructor(
     suspend fun payInstallment(
         loanId: String,
         amount: Double,
-        paidDate: String
+        date: String,
+        receiptNumber: String? = null,
+        installmentNumber: Int? = null,
+        lateFee: Double? = null
     ): Result<InstallmentEntity> {
         return try {
             val installment = InstallmentEntity(
                 id = java.util.UUID.randomUUID().toString(),
                 loan_id = loanId,
                 amount = amount,
-                due_date = paidDate,
-                paid_date = paidDate,
+                date = date,
+                receipt_number = receiptNumber,
+                installment_number = installmentNumber,
+                late_fee = lateFee,
                 status = "paid",
                 created_at = java.time.Instant.now().toString()
             )
@@ -49,3 +53,4 @@ class InstallmentRepository @Inject constructor(
         }
     }
 }
+
