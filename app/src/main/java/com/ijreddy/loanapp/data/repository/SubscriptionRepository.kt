@@ -37,6 +37,7 @@ class SubscriptionRepository @Inject constructor(
     suspend fun add(
         customerId: String,
         amount: Double,
+        date: String,
         receipt: String? = null,
         lateFee: Double? = null
     ): Result<SubscriptionEntity> {
@@ -45,7 +46,7 @@ class SubscriptionRepository @Inject constructor(
                 id = java.util.UUID.randomUUID().toString(),
                 customer_id = customerId,
                 amount = amount,
-                date = java.time.LocalDate.now().toString(),
+                date = date,
                 receipt = receipt,
                 late_fee = lateFee,
                 created_at = java.time.OffsetDateTime.now().toString()

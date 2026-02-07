@@ -85,6 +85,7 @@ fun LoanAppNavigation(
                 onNavigateToCustomers = { navController.navigate(Screen.Customers.route) },
                 onNavigateToAddCustomer = { navController.navigate(Screen.AddCustomer.route) },
                 onNavigateToAddRecord = { navController.navigate(Screen.AddRecord.route) },
+                onNavigateToData = { navController.navigate(Screen.Data.route) },
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Screen.Login.route) {
@@ -133,13 +134,19 @@ fun LoanAppNavigation(
             }
         }
         
-        // Add Record (Placeholder for now)
-        composable(Screen.AddRecord.route) {
+        // Add Record
+        composable(
+            route = "add-record?customerId={customerId}",
+            arguments = listOf(
+                navArgument("customerId") { 
+                    type = NavType.StringType 
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
             AddRecordScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToLoans = { navController.navigate(Screen.Loans.route) },
-                onNavigateToSubscriptions = { navController.navigate(Screen.Subscriptions.route) },
-                onNavigateToDataEntries = { navController.navigate(Screen.Data.route) }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
@@ -147,7 +154,11 @@ fun LoanAppNavigation(
         composable(Screen.AddCustomer.route) {
             AddCustomerScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onCustomerAdded = { navController.popBackStack() }
+                onCustomerAdded = { customerId ->
+                    // Pop AddCustomer and go to AddRecord
+                    navController.popBackStack()
+                    navController.navigate("add-record?customerId=$customerId")
+                }
             )
         }
         
