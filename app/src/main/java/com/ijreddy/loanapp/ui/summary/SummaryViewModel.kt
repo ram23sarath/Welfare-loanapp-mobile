@@ -36,13 +36,13 @@ class SummaryViewModel @Inject constructor(
     ) { entries, subscriptions, loans, installments, interestRecords ->
         val totalCredits = entries
             .filter { it.type == "credit" }
-            .sumAmount()
+            .sumAmount { it.amount }
         val totalDebits = entries
             .filter { it.type == "debit" }
-            .sumAmount()
+            .sumAmount { it.amount }
         val totalExpenses = entries
             .filter { it.type == "expense" }
-            .sumAmount()
+            .sumAmount { it.amount }
 
         val totalSubscriptions = subscriptions.sumAmount { it.amount }
         val totalLoanPrincipal = loans.sumAmount { it.principal }
@@ -57,7 +57,7 @@ class SummaryViewModel @Inject constructor(
             .filter { it.type == "expense" }
             .groupBy { entry -> entry.category?.takeIf { it.isNotBlank() } ?: "Uncategorized" }
             .map { (label, grouped) ->
-                ExpenseBreakdownItem(label, grouped.sumAmount())
+                ExpenseBreakdownItem(label, grouped.sumAmount { it.amount })
             }
             .sortedByDescending { it.amount }
 
