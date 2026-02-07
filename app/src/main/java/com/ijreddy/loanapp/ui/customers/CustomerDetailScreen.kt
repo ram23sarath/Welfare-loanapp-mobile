@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ijreddy.loanapp.ui.common.DataEntryCard
 import com.ijreddy.loanapp.ui.common.DataEntryType
 import com.ijreddy.loanapp.ui.common.LoanCard
@@ -29,29 +30,19 @@ fun CustomerDetailScreen(
     customerId: String,
     onNavigateBack: () -> Unit,
     onNavigateToLoan: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CustomerDetailViewModel = hiltViewModel()
 ) {
     val tabs = listOf("Overview", "Loans", "Subscriptions", "Entries")
     var selectedTab by remember { mutableStateOf(0) }
-    
-    // Mock data - replace with ViewModel
-    val customer = remember {
-        CustomerData(
-            id = customerId,
-            name = "Priya Sharma",
-            phone = "9876543210",
-            stationName = "Jubilee Hills Fire Station",
-            email = "@9876543210@loanapp.local",
-            totalLoansAmount = 150000.0,
-            totalSubscriptionsAmount = 24000.0,
-            totalDataEntriesAmount = 5000.0
-        )
-    }
-    
+
+    val uiState by viewModel.uiState.collectAsState()
+    val customer = uiState.customer
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(customer.name) },
+                title = { Text(customer?.name ?: "Customer") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -69,40 +60,55 @@ fun CustomerDetailScreen(
         },
         modifier = modifier
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Tab row
-            TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) }
-                    )
-                }
+        if (uiState.isLoading && customer == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-            
-            // Tab content
-            when (selectedTab) {
-                0 -> CustomerOverviewTab(customer)
-                1 -> CustomerLoansTab(
-                    customerId = customerId,
-                    onLoanClick = onNavigateToLoan
-                )
-                2 -> CustomerSubscriptionsTab(customerId = customerId)
-                3 -> CustomerEntriesTab(customerId = customerId)
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Tab row
+                TabRow(selectedTabIndex = selectedTab) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = { Text(title) }
+                        )
+                    }
+                }
+
+                // Tab content
+                when (selectedTab) {
+                    0 -> CustomerOverviewTab(uiState)
+                    1 -> CustomerLoansTab(
+                        loans = uiState.loans,
+                        onLoanClick = onNavigateToLoan
+                    )
+                    2 -> CustomerSubscriptionsTab(
+                        subscriptions = uiState.subscriptions,
+                        customerName = customer?.name ?: ""
+                    )
+                    3 -> CustomerEntriesTab(entries = uiState.entries)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CustomerOverviewTab(customer: CustomerData) {
+private fun CustomerOverviewTab(state: CustomerDetailUiState) {
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
-    
+    val customer = state.customer
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -117,10 +123,9 @@ private fun CustomerOverviewTab(customer: CustomerData) {
                 ) {
                     Text("Contact Information", style = MaterialTheme.typography.titleMedium)
                     HorizontalDivider()
-                    
-                    InfoRow(icon = Icons.Default.Phone, label = "Phone", value = customer.phone)
-                    InfoRow(icon = Icons.Default.LocationOn, label = "Station", value = customer.stationName)
-                    InfoRow(icon = Icons.Default.Email, label = "Email", value = customer.email)
+
+                    InfoRow(icon = Icons.Default.Phone, label = "Phone", value = customer?.phone ?: "—")
+                    InfoRow(icon = Icons.Default.Email, label = "Email", value = state.customerEmail ?: "—")
                 }
             }
         }
@@ -137,13 +142,13 @@ private fun CustomerOverviewTab(customer: CustomerData) {
             ) {
                 SummaryCard(
                     title = "Loans",
-                    amount = currencyFormat.format(customer.totalLoansAmount),
+                    amount = currencyFormat.format(state.totalLoansAmount),
                     icon = Icons.Default.AccountBalance,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryCard(
                     title = "Subscriptions",
-                    amount = currencyFormat.format(customer.totalSubscriptionsAmount),
+                    amount = currencyFormat.format(state.totalSubscriptionsAmount),
                     icon = Icons.Default.Repeat,
                     modifier = Modifier.weight(1f)
                 )
@@ -153,7 +158,7 @@ private fun CustomerOverviewTab(customer: CustomerData) {
         item {
             SummaryCard(
                 title = "Data Entries",
-                amount = currencyFormat.format(customer.totalDataEntriesAmount),
+                amount = currencyFormat.format(state.totalDataEntriesAmount),
                 icon = Icons.Default.Receipt,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -209,17 +214,9 @@ private fun SummaryCard(
 
 @Composable
 private fun CustomerLoansTab(
-    customerId: String,
+    loans: List<com.ijreddy.loanapp.ui.model.LoanUiModel>,
     onLoanClick: (String) -> Unit
 ) {
-    // Mock loans data
-    val loans = remember {
-        listOf(
-            MockLoan("1", "Priya Sharma", 50000.0, 5000.0, "2024-01-15", 12, 8),
-            MockLoan("2", "Priya Sharma", 30000.0, 3000.0, "2024-06-10", 6, 2)
-        )
-    }
-    
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -227,11 +224,11 @@ private fun CustomerLoansTab(
         items(loans, key = { it.id }) { loan ->
             LoanCard(
                 customerName = loan.customerName,
-                originalAmount = loan.originalAmount,
-                interestAmount = loan.interestAmount,
-                paymentDate = loan.paymentDate,
-                totalInstallments = loan.totalInstallments,
-                paidInstallments = loan.paidInstallments,
+                originalAmount = loan.principal,
+                interestAmount = (loan.principal * loan.interestRate / 100.0),
+                paymentDate = loan.startDate,
+                totalInstallments = loan.tenureMonths,
+                paidInstallments = 0,
                 onTap = { onLoanClick(loan.id) },
                 onLongPress = { /* Show context menu */ }
             )
@@ -240,25 +237,21 @@ private fun CustomerLoansTab(
 }
 
 @Composable
-private fun CustomerSubscriptionsTab(customerId: String) {
-    val subscriptions = remember {
-        listOf(
-            MockSubscription("1", "Priya Sharma", 2000.0, "2024-12-01", "REC-001"),
-            MockSubscription("2", "Priya Sharma", 2000.0, "2024-11-01", "REC-002", 100.0)
-        )
-    }
-    
+private fun CustomerSubscriptionsTab(
+    subscriptions: List<com.ijreddy.loanapp.data.local.entity.SubscriptionEntity>,
+    customerName: String
+) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(subscriptions, key = { it.id }) { sub ->
             SubscriptionCard(
-                customerName = sub.customerName,
+                customerName = customerName,
                 amount = sub.amount,
-                date = sub.date,
-                receiptNumber = sub.receiptNumber,
-                lateFee = sub.lateFee,
+                date = sub.start_date,
+                receiptNumber = sub.id.take(8),
+                lateFee = null,
                 onTap = { },
                 onLongPress = { }
             )
@@ -267,14 +260,7 @@ private fun CustomerSubscriptionsTab(customerId: String) {
 }
 
 @Composable
-private fun CustomerEntriesTab(customerId: String) {
-    val entries = remember {
-        listOf(
-            MockEntry("1", 5000.0, "2024-12-15", "ENT-001", DataEntryType.CREDIT, "Bonus payment"),
-            MockEntry("2", 1500.0, "2024-12-10", "ENT-002", DataEntryType.DEBIT, null)
-        )
-    }
-    
+private fun CustomerEntriesTab(entries: List<com.ijreddy.loanapp.data.local.entity.DataEntryEntity>) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -284,52 +270,12 @@ private fun CustomerEntriesTab(customerId: String) {
                 customerName = null,
                 amount = entry.amount,
                 date = entry.date,
-                receiptNumber = entry.receiptNumber,
-                type = entry.type,
-                notes = entry.notes,
+                receiptNumber = entry.id.take(8),
+                type = DataEntryType.valueOf(entry.type.uppercase()),
+                notes = entry.description,
                 onTap = { },
                 onLongPress = { }
             )
         }
     }
 }
-
-// Data classes for mock data
-private data class CustomerData(
-    val id: String,
-    val name: String,
-    val phone: String,
-    val stationName: String,
-    val email: String,
-    val totalLoansAmount: Double,
-    val totalSubscriptionsAmount: Double,
-    val totalDataEntriesAmount: Double
-)
-
-private data class MockLoan(
-    val id: String,
-    val customerName: String,
-    val originalAmount: Double,
-    val interestAmount: Double,
-    val paymentDate: String,
-    val totalInstallments: Int,
-    val paidInstallments: Int
-)
-
-private data class MockSubscription(
-    val id: String,
-    val customerName: String,
-    val amount: Double,
-    val date: String,
-    val receiptNumber: String,
-    val lateFee: Double? = null
-)
-
-private data class MockEntry(
-    val id: String,
-    val amount: Double,
-    val date: String,
-    val receiptNumber: String,
-    val type: DataEntryType,
-    val notes: String?
-)

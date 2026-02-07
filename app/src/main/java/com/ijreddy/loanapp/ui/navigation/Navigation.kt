@@ -21,6 +21,7 @@ import com.ijreddy.loanapp.ui.data.DataEntriesScreen
 import com.ijreddy.loanapp.ui.loans.LoanListScreen
 import com.ijreddy.loanapp.ui.loans.LoanDetailScreen
 import com.ijreddy.loanapp.ui.records.AddRecordScreen
+import com.ijreddy.loanapp.ui.seniority.LoanSeniorityScreen
 import com.ijreddy.loanapp.ui.subscriptions.SubscriptionListScreen
 import com.ijreddy.loanapp.ui.summary.SummaryScreen
 
@@ -168,6 +169,13 @@ fun LoanAppNavigation(
         // Subscriptions
         composable(Screen.Subscriptions.route) {
             SubscriptionListScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Loan Seniority
+        composable(Screen.LoanSeniority.route) {
+            LoanSeniorityScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

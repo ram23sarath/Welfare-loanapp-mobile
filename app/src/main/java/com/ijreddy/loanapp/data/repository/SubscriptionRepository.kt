@@ -25,6 +25,8 @@ class SubscriptionRepository @Inject constructor(
     // Expose as flow
     val subscriptions: Flow<List<SubscriptionEntity>> = subscriptionDao.getActive()
     
+    fun getByCustomerId(customerId: String): Flow<List<SubscriptionEntity>> = subscriptionDao.getByCustomerId(customerId)
+
     // Calculate total daily subscriptions
     val dailyTotal: Flow<Double> = subscriptions.map { list ->
         list.fold(BigDecimal.ZERO) { acc, sub -> acc.add(BigDecimal.valueOf(sub.amount)) }.toDouble()

@@ -37,8 +37,38 @@ app/
 
 1. Clone this repository
 2. Open in Android Studio (Hedgehog or later)
-3. Copy `.env.example` to `local.properties` and add your Supabase credentials
+3. Copy `local.properties.sample` to `local.properties` and add your Supabase credentials
 4. Build and run on emulator or device
+
+### Local configuration
+
+Create a `local.properties` file at the repo root with your Supabase credentials:
+
+```
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+```
+
+### Build & test commands
+
+```
+./gradlew assembleDebug
+./gradlew testDebugUnitTest
+```
+
+> Instrumentation/UI tests require an emulator or device:
+```
+./gradlew connectedDebugAndroidTest
+```
+
+### Feature coverage (Android)
+- Authentication with phone/password normalization for Supabase
+- Customers: list, add, detail (loans, subscriptions, data entries)
+- Loans: list, detail, record installment
+- Subscriptions: list, add, soft delete
+- Data entries: list, add, edit, soft delete
+- Loan seniority queue: list + add + remove
+- Summary dashboard and charts
 
 ## Related Documentation
 

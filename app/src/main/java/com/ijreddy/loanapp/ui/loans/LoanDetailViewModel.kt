@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
 import com.ijreddy.loanapp.data.local.entity.LoanEntity
 import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +24,7 @@ class LoanDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     repository: LoanRepository,
     customerRepository: CustomerRepository,
-    installmentRepository: InstallmentRepository
+    private val installmentRepository: InstallmentRepository
 ) : ViewModel() {
 
     private val loanId: String = checkNotNull(savedStateHandle["loanId"])
@@ -50,4 +51,15 @@ class LoanDetailViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+
+    fun recordInstallment(amount: Double, paidDate: String) {
+        viewModelScope.launch {
+            installmentRepository.payInstallment(
+                loanId = loanId,
+                amount = amount,
+                installmentNumber = installments.value.size + 1,
+                paidDate = paidDate
+            )
+        }
+    }
 }

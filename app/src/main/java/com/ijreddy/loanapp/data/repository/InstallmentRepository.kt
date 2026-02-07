@@ -27,10 +27,26 @@ class InstallmentRepository @Inject constructor(
     suspend fun payInstallment(
         loanId: String,
         amount: Double,
-        installmentNumber: Int
+        installmentNumber: Int,
+        paidDate: String
     ): Result<InstallmentEntity> {
-        // Implementation logic for payment
-        // TODO: Implement payment logic and syncManager.queueOperation
-        return Result.failure(NotImplementedError("Payment logic not yet implemented"))
+        return try {
+            val installment = InstallmentEntity(
+                id = java.util.UUID.randomUUID().toString(),
+                loan_id = loanId,
+                amount = amount,
+                due_date = paidDate,
+                paid_date = paidDate,
+                status = "paid",
+                created_at = java.time.Instant.now().toString()
+            )
+
+            installmentDao.insert(installment)
+            syncManager.queueOperation("installments", installment.id, "INSERT", installment)
+
+            Result.success(installment)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

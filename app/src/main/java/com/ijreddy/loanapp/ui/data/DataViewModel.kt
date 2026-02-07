@@ -86,4 +86,35 @@ class DataViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateEntry(entryId: String, amount: Double, date: String, type: DataEntryType, description: String, category: String?) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                repository.update(
+                    id = entryId,
+                    updates = mapOf(
+                        "amount" to amount,
+                        "date" to date,
+                        "type" to type.name.lowercase(),
+                        "description" to description,
+                        "category" to category
+                    )
+                )
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteEntry(entryId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                repository.softDelete(entryId)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

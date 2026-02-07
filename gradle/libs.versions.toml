@@ -22,6 +22,7 @@ workManager = "2.9.0"
 hiltWork = "1.2.0"
 vico = "1.13.1"
 splashscreen = "1.0.1"
+mockk = "1.13.9"
 
 
 [libraries]
@@ -70,6 +71,7 @@ androidx-security-crypto = { group = "androidx.security", name = "security-crypt
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 
 # Image Loading
@@ -89,6 +91,7 @@ androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", v
 
 # Testing
 junit = { group = "junit", name = "junit", version = "4.13.2" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.1.5" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.5.1" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
