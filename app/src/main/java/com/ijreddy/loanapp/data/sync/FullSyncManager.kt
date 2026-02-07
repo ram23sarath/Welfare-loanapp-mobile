@@ -128,51 +128,91 @@ class FullSyncManager @Inject constructor(
     }
     
     private suspend fun fetchCustomers(): List<CustomerEntity> {
-        return postgrest.from("customers")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("customers").select().decodeList<CustomerEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} customers")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch customers: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchLoans(): List<LoanEntity> {
-        return postgrest.from("loans")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("loans").select().decodeList<LoanEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} loans")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch loans: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchSubscriptions(): List<SubscriptionEntity> {
-        return postgrest.from("subscriptions")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("subscriptions").select().decodeList<SubscriptionEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} subscriptions")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch subscriptions: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchInstallments(): List<InstallmentEntity> {
-        return postgrest.from("installments")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("installments").select().decodeList<InstallmentEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} installments")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch installments: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchDataEntries(): List<DataEntryEntity> {
-        return postgrest.from("data_entries")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("data_entries").select().decodeList<DataEntryEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} data entries")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch data_entries: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchLoanSeniority(): List<LoanSeniorityEntity> {
-        return postgrest.from("loan_seniority")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("loan_seniority").select().decodeList<LoanSeniorityEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} loan seniority entries")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch loan_seniority: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchCustomerInterests(): List<CustomerInterestEntity> {
-        return postgrest.from("customer_interest")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("customer_interest").select().decodeList<CustomerInterestEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} customer interests")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch customer_interest: ${e.message}", e)
+            emptyList()
+        }
     }
     
     private suspend fun fetchDocuments(): List<DocumentEntity> {
-        return postgrest.from("documents")
-            .select()
-            .decodeList()
+        return try {
+            val result = postgrest.from("documents").select().decodeList<DocumentEntity>()
+            android.util.Log.d("FullSyncManager", "Fetched ${result.size} documents")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("FullSyncManager", "Failed to fetch documents: ${e.message}", e)
+            emptyList()
+        }
     }
     
     /**

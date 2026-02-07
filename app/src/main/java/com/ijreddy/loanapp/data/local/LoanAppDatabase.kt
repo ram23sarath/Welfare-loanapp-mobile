@@ -25,9 +25,9 @@ import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
  * Room database for LoanApp local storage.
  * Provides offline-first capability with sync to Supabase.
  * 
- * Version 4: Updated entity schemas to match Supabase tables
- * - Removed is_deleted column (use deleted_at IS NULL pattern)
- * - Updated field names to match Supabase column names
+ * Version 5: Fixed entity schemas for serialization compatibility
+ * - Marked local-only fields with @Transient
+ * - Made nullable fields have default values
  */
 @Database(
     entities = [
@@ -41,7 +41,7 @@ import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
         CustomerInterestEntity::class,
         DocumentEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class LoanAppDatabase : RoomDatabase() {
