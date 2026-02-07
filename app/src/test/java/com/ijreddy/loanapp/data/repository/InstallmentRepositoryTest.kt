@@ -14,6 +14,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -30,8 +32,8 @@ class InstallmentRepositoryTest {
         // Create real dependencies with mocks for SyncManager
         val fakePendingSyncDao = FakePendingSyncDao()
         val networkMonitor = mockk<NetworkMonitor> {
-            every { isOnline } returns flowOf(false)
-            coEvery { isCurrentlyOnline() } returns false
+            every { isOnline } returns MutableStateFlow(false)
+            every { isCurrentlyOnline() } returns false
         }
         val syncScheduler = mockk<SyncScheduler>(relaxed = true)
         val fullSyncManager = mockk<FullSyncManager>(relaxed = true)
@@ -90,17 +92,29 @@ class InstallmentRepositoryTest {
 
     private class FakePendingSyncDao : PendingSyncDao {
         val items = mutableListOf<PendingSyncEntity>()
+        private var nextId = 1L
 
-        override suspend fun insert(entity: PendingSyncEntity) {
-            items.add(entity)
+        override suspend fun getAll(): List<PendingSyncEntity> = items.toList()
+        override fun observeAll(): Flow<List<PendingSyncEntity>> = flowOf(items)
+        override fun observeCount(): Flow<Int> = flowOf(items.size)
+        override suspend fun getByTable(table: String): List<PendingSyncEntity> = 
+            items.filter { it.table_name == table }
+        override suspend fun insert(sync: PendingSyncEntity): Long {
+            val id = nextId++
+            items.add(sync.copy(id = id))
+            return id
         }
-        override suspend fun getAllPending(): List<PendingSyncEntity> = items.toList()
+        override suspend fun markRetry(id: Long, error: String) {}
         override suspend fun delete(id: Long) {
             items.removeAll { it.id == id }
+        }
+        override suspend fun deleteByRecord(recordId: String, table: String) {
+            items.removeAll { it.record_id == recordId && it.table_name == table }
         }
         override suspend fun deleteAll() {
             items.clear()
         }
-        override fun getPendingCount(): Flow<Int> = flowOf(items.size)
+        override suspend fun getFailedItems(maxRetries: Int): List<PendingSyncEntity> = 
+            items.filter { it.retry_count >= maxRetries }
     }
 }
