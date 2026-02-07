@@ -22,21 +22,21 @@ class SyncWorker @AssistedInject constructor(
     private val pendingSyncDao: PendingSyncDao,
     private val postgrest: Postgrest
 ) : CoroutineWorker(context, params) {
-    
+
     override suspend fun doWork(): Result {
         val pending = pendingSyncDao.getAll()
         if (pending.isEmpty()) {
             return Result.success()
         }
-        
+
         var failures = 0
-        
+
         for (item in pending) {
             try {
                 when (item.operation) {
-                    "INSERT" -> syncInsert(item.table_name, item.payload)
-                    "UPDATE" -> syncUpdate(item.table_name, item.record_id, item.payload)
-                    "DELETE" -> syncDelete(item.table_name, item.record_id)
+                    OPERATION_INSERT -> syncInsert(item.table_name, item.payload)
+                    OPERATION_UPDATE -> syncUpdate(item.table_name, item.record_id, item.payload)
+                    OPERATION_DELETE -> syncDelete(item.table_name, item.record_id)
                 }
                 pendingSyncDao.delete(item.id)
             } catch (e: Exception) {
@@ -50,7 +50,7 @@ class SyncWorker @AssistedInject constructor(
                 }
             }
         }
-        
+
         return if (failures > 0 && failures < pending.size) {
             // Partial success, retry remaining
             Result.retry()
@@ -61,27 +61,30 @@ class SyncWorker @AssistedInject constructor(
             Result.success()
         }
     }
-    
+
     private suspend fun syncInsert(table: String, payload: String) {
         val jsonObject = Json.decodeFromString<JsonObject>(payload)
         postgrest.from(table).insert(jsonObject)
     }
-    
+
     private suspend fun syncUpdate(table: String, recordId: String, payload: String) {
         val jsonObject = Json.decodeFromString<JsonObject>(payload)
         postgrest.from(table).update(jsonObject) {
             filter { eq("id", recordId) }
         }
     }
-    
+
     private suspend fun syncDelete(table: String, recordId: String) {
         postgrest.from(table).delete {
             filter { eq("id", recordId) }
         }
     }
-    
+
     companion object {
-        const val MAX_RETRIES = 3
+        private const val MAX_RETRIES = 3
         const val WORK_NAME = "loanapp_sync"
+        private const val OPERATION_INSERT = "INSERT"
+        private const val OPERATION_UPDATE = "UPDATE"
+        private const val OPERATION_DELETE = "DELETE"
     }
 }

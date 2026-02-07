@@ -2,8 +2,24 @@ package com.ijreddy.loanapp.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.ijreddy.loanapp.data.local.dao.*
-import com.ijreddy.loanapp.data.local.entity.*
+import com.ijreddy.loanapp.data.local.dao.CustomerDao
+import com.ijreddy.loanapp.data.local.dao.CustomerInterestDao
+import com.ijreddy.loanapp.data.local.dao.DataEntryDao
+import com.ijreddy.loanapp.data.local.dao.DocumentDao
+import com.ijreddy.loanapp.data.local.dao.InstallmentDao
+import com.ijreddy.loanapp.data.local.dao.LoanDao
+import com.ijreddy.loanapp.data.local.dao.PendingSyncDao
+import com.ijreddy.loanapp.data.local.dao.SeniorityDao
+import com.ijreddy.loanapp.data.local.dao.SubscriptionDao
+import com.ijreddy.loanapp.data.local.entity.CustomerEntity
+import com.ijreddy.loanapp.data.local.entity.CustomerInterestEntity
+import com.ijreddy.loanapp.data.local.entity.DataEntryEntity
+import com.ijreddy.loanapp.data.local.entity.DocumentEntity
+import com.ijreddy.loanapp.data.local.entity.InstallmentEntity
+import com.ijreddy.loanapp.data.local.entity.LoanEntity
+import com.ijreddy.loanapp.data.local.entity.LoanSeniorityEntity
+import com.ijreddy.loanapp.data.local.entity.PendingSyncEntity
+import com.ijreddy.loanapp.data.local.entity.SubscriptionEntity
 
 /**
  * Room database for LoanApp local storage.
