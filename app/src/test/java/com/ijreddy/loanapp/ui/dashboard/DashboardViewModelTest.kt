@@ -55,8 +55,24 @@ class DashboardViewModelTest {
         )
         every { loanRepository.loans } returns MutableStateFlow(
             listOf(
-                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, created_at = Instant.now().toString()),
-                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, created_at = Instant.now().toString())
+                LoanEntity(
+                    id = "l1",
+                    customer_id = "c1",
+                    original_amount = 50000.0,
+                    interest_amount = 1000.0,
+                    payment_date = "2024-01-01",
+                    total_instalments = 12,
+                    created_at = Instant.now().toString()
+                ),
+                LoanEntity(
+                    id = "l2",
+                    customer_id = "c2",
+                    original_amount = 20000.0,
+                    interest_amount = 300.0,
+                    payment_date = "2024-02-01",
+                    total_instalments = 6,
+                    created_at = Instant.now().toString()
+                )
             )
         )
         every { subscriptionRepository.subscriptions } returns MutableStateFlow(emptyList())
@@ -92,14 +108,42 @@ class DashboardViewModelTest {
         every { customerRepository.customers } returns MutableStateFlow(emptyList())
         every { loanRepository.loans } returns MutableStateFlow(
             listOf(
-                LoanEntity("l1", "c1", 50000.0, 2.0, "2024-01-01", 12, 4500.0, created_at = Instant.now().toString()),
-                LoanEntity("l2", "c2", 20000.0, 1.5, "2024-02-01", 6, 3500.0, created_at = Instant.now().toString())
+                LoanEntity(
+                    id = "l1",
+                    customer_id = "c1",
+                    original_amount = 50000.0,
+                    interest_amount = 1000.0,
+                    payment_date = "2024-01-01",
+                    total_instalments = 12,
+                    created_at = Instant.now().toString()
+                ),
+                LoanEntity(
+                    id = "l2",
+                    customer_id = "c2",
+                    original_amount = 20000.0,
+                    interest_amount = 300.0,
+                    payment_date = "2024-02-01",
+                    total_instalments = 6,
+                    created_at = Instant.now().toString()
+                )
             )
         )
         every { subscriptionRepository.subscriptions } returns MutableStateFlow(
             listOf(
-                SubscriptionEntity("s1", "c1", 2000.0, "2024-01-01", created_at = Instant.now().toString()),
-                SubscriptionEntity("s2", "c2", 1500.0, "2024-01-01", created_at = Instant.now().toString())
+                SubscriptionEntity(
+                    id = "s1",
+                    customer_id = "c1",
+                    amount = 2000.0,
+                    date = "2024-01-01",
+                    created_at = Instant.now().toString()
+                ),
+                SubscriptionEntity(
+                    id = "s2",
+                    customer_id = "c2",
+                    amount = 1500.0,
+                    date = "2024-01-01",
+                    created_at = Instant.now().toString()
+                )
             )
         )
 

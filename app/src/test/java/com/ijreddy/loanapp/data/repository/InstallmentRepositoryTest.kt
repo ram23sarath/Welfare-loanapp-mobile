@@ -46,7 +46,7 @@ class InstallmentRepositoryTest {
         val result = repository.payInstallment(
             loanId = "loan-1",
             amount = 1200.0,
-            paidDate = "2024-02-01"
+            date = "2024-02-01"
         )
 
         assertEquals(true, result.isSuccess)
@@ -78,7 +78,7 @@ class InstallmentRepositoryTest {
             val index = items.indexOfFirst { it.id == installment.id }
             if (index >= 0) items[index] = installment
         }
-        override suspend fun markPaid(id: String, paidDate: String) {}
+        override suspend fun markPaid(id: String) {}
         override suspend fun markOverdueInstallments(today: String) {}
         override suspend fun softDelete(id: String, now: String, userId: String) {}
         override suspend fun restore(id: String) {}

@@ -55,12 +55,26 @@ class CustomerDetailViewModelTest {
         coEvery { customerRepository.getById("c1") } returns customer
         every { loanRepository.getByCustomerId("c1") } returns flowOf(
             listOf(
-                LoanEntity("l1", "c1", 10000.0, 2.0, "2024-01-01", 12, 900.0, created_at = Instant.now().toString())
+                LoanEntity(
+                    id = "l1",
+                    customer_id = "c1",
+                    original_amount = 10000.0,
+                    interest_amount = 200.0,
+                    payment_date = "2024-01-01",
+                    total_instalments = 12,
+                    created_at = Instant.now().toString()
+                )
             )
         )
         every { subscriptionRepository.getByCustomerId("c1") } returns flowOf(
             listOf(
-                SubscriptionEntity("s1", "c1", 1500.0, "2024-01-01", created_at = Instant.now().toString())
+                SubscriptionEntity(
+                    id = "s1",
+                    customer_id = "c1",
+                    amount = 1500.0,
+                    date = "2024-01-01",
+                    created_at = Instant.now().toString()
+                )
             )
         )
         every { dataEntryRepository.getByCustomerId("c1") } returns flowOf(
@@ -70,7 +84,7 @@ class CustomerDetailViewModelTest {
                     customer_id = "c1",
                     type = "credit",
                     amount = 500.0,
-                    description = "bonus",
+                    notes = "bonus",
                     date = "2024-02-01",
                     created_at = Instant.now().toString()
                 )
