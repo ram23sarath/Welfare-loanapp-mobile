@@ -76,6 +76,7 @@ fun AddRecordScreen(
     
     // Success Dialog
     if (uiState.successMessage != null) {
+        val context = androidx.compose.ui.platform.LocalContext.current
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { 
                 viewModel.clearMessages()
@@ -88,7 +89,6 @@ fun AddRecordScreen(
                     onClick = {
                         val customer = selectedCustomer 
                         if (customer != null) {
-                            val context = androidx.compose.ui.platform.LocalContext.current
                             when (recordType) {
                                 RecordType.LOAN -> {
                                     com.ijreddy.loanapp.ui.common.WhatsAppHelper.shareLoanSummary(
@@ -222,19 +222,19 @@ fun AddRecordScreen(
                                 RecordType.LOAN -> {
                                     LoanForm(
                                         state = loanFormState,
-                                        onStateChange = viewModel::updateLoanForm
+                                        onStateChange = { viewModel.updateLoanForm(it) }
                                     )
                                 }
                                 RecordType.SUBSCRIPTION -> {
                                     SubscriptionForm(
                                         state = subscriptionFormState,
-                                        onStateChange = viewModel::updateSubscriptionForm
+                                        onStateChange = { viewModel.updateSubscriptionForm(it) }
                                     )
                                 }
                                 RecordType.INSTALLMENT -> {
                                     InstallmentForm(
                                         state = installmentFormState,
-                                        onStateChange = viewModel::updateInstallmentForm,
+                                        onStateChange = { viewModel.updateInstallmentForm(it) },
                                         customerLoans = customerLoans,
                                         existingInstallments = existingInstallments
                                     )

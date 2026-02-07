@@ -69,7 +69,7 @@ class SubscriptionViewModel @Inject constructor(
 
     fun addSubscription(customerId: String, amount: BigDecimal) {
         viewModelScope.launch {
-            subscriptionRepository.add(customerId, amount.toDouble())
+            subscriptionRepository.add(customerId, amount.toDouble(), java.time.LocalDate.now().toString())
         }
     }
 }
